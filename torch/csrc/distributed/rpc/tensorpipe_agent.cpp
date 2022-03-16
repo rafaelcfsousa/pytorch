@@ -354,11 +354,38 @@ void TensorPipeAgent::prepareNames() {
   }
 }
 
+void TensorPipeAgent::checkAndSetStaticGroup(
+    const c10::intrusive_ptr<::c10d::Store>& store) {
+  std::string isStaticGroupKey("rpcIsStaticGroup");
+  bool isStaticGroupKeyExists =
+      store->check(std::vector<std::string>{isStaticGroupKey});
+  if (isStaticGroupKeyExists) {
+    std::vector<uint8_t> isStaticGroupVector = store->get(isStaticGroupKey);
+    bool storeIsStaticGroup = false;
+    std::istringstream(std::string(
+        (char*)isStaticGroupVector.data(), isStaticGroupVector.size())) >>
+        std::boolalpha >> storeIsStaticGroup;
+    TORCH_CHECK(
+        isStaticGroup_ == storeIsStaticGroup,
+        fmt::format(
+            "RPC group behavior is different than expected. isStaticGroup_ is initialized with {} while store is {}",
+            isStaticGroup_,
+            storeIsStaticGroup))
+  } else {
+    std::string isStaticGroupStr;
+    isStaticGroupStr = isStaticGroup_ ? "true" : "false";
+    std::vector<uint8_t> isStaticGroupVec(
+        (uint8_t*)isStaticGroupStr.c_str(),
+        (uint8_t*)isStaticGroupStr.c_str() + isStaticGroupStr.length());
+    store->set(isStaticGroupKey, isStaticGroupVec);
+  }
+}
+
 TensorPipeAgent::TensorPipeAgent(
     const c10::intrusive_ptr<::c10d::Store>& store,
     std::string selfName,
     worker_id_t selfId,
-    int worldSize,
+    optional<int> worldSize,
     TensorPipeRpcBackendOptions opts,
     std::unordered_map<std::string, DeviceMap> reverseDeviceMaps,
     std::vector<c10::Device> devices,
@@ -376,8 +403,17 @@ TensorPipeAgent::TensorPipeAgent(
           tensorpipe::ContextOptions().name(workerInfo_.name_))),
       rankToNameStore_("names", store),
       nameToAddressStore_("addrs", store),
-      shutdownStore_("shutdown", store),
-      worldSize_(worldSize) {
+      shutdownStore_("shutdown", store) {
+  if (worldSize.has_value()) {
+    worldSize_ = worldSize.value();
+    isStaticGroup_ = true;
+  } else {
+    isStaticGroup_ = false;
+  }
+
+  // check the static group attribute against store
+  checkAndSetStaticGroup(store);
+
   // collect worker names
   prepareNames();
 

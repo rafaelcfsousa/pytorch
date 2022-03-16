@@ -4320,6 +4320,47 @@ class RpcTest(RpcAgentTestFixture, RpcTestCommon):
 
         rpc.shutdown()
 
+    # Test init_rpc without world_size argument
+    @dist_init(setup_rpc=False)
+    def test_init_rpc_without_world_size(self):
+        rpc.init_rpc(
+            name=worker_name(self.rank),
+            backend=self.rpc_backend,
+            rank=self.rank,
+            rpc_backend_options=self.rpc_backend_options,
+        )
+
+        # TODO: shutdown is ungraceful, not yet fully implemented
+        rpc.shutdown(graceful=False)
+
+    @dist_init(setup_rpc=False)
+    def test_init_rpc_without_world_size_without_rank(self):
+        # default initialization uses file init
+        with self.assertRaisesRegex(ValueError, "rank parameter missing"):
+            rpc.init_rpc(
+                name=worker_name(self.rank),
+                backend=self.rpc_backend,
+                rpc_backend_options=self.rpc_backend_options,
+            )
+
+        # env init
+        with self.assertRaisesRegex(ValueError, "environment variable RANK expected"):
+            rpc_backend_options = rpc.TensorPipeRpcBackendOptions(init_method="env://")
+            rpc.init_rpc(
+                name=worker_name(self.rank),
+                backend=self.rpc_backend,
+                rpc_backend_options=rpc_backend_options,
+            )
+
+        # tcp init
+        with self.assertRaisesRegex(ValueError, "rank parameter missing"):
+            rpc_backend_options = rpc.TensorPipeRpcBackendOptions(init_method="tcp://127.0.0.1:23456")
+            rpc.init_rpc(
+                name=worker_name(self.rank),
+                backend=self.rpc_backend,
+                rpc_backend_options=rpc_backend_options,
+            )
+
     def test_wrong_types(self):
         with self.assertRaisesRegex(
             TypeError,
