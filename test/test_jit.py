@@ -15969,6 +15969,7 @@ EXCLUDE_TRACED = {
     # jit doesn't support sparse tensors.
     'test_to_sparse',
     'test_to_sparse_dim',
+    'test_to_sparse_csr',
 }
 
 EXCLUDE_TYPE_CHECK = {
