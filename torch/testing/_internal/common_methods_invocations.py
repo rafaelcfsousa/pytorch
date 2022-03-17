@@ -14441,6 +14441,31 @@ op_db: List[OpInfo] = [
                             'TestSparseCSR', 'test_sparse_csr_consistency'),
            )
            ),
+    OpInfo('to_sparse_csr',
+           op=lambda x, *args: x.to_sparse_csr(*args),
+           sample_inputs_func=sample_inputs_to_sparse,
+           dtypes=all_types_and_complex_and(torch.bool, torch.float16, torch.bfloat16),
+           backward_dtypes=floating_types(),
+           backward_dtypesIfCUDA=floating_types_and(torch.float16, torch.bfloat16),
+           supports_out=False,
+           supports_sparse_csr=True,
+           check_batched_grad=False,
+           check_batched_gradgrad=False,
+           # skips=(
+           #     # NotImplementedError: Could not run 'aten::normal_' with arguments from the 'SparseCPU' backend
+           #     DecorateInfo(unittest.skip(""), 'TestCommon', 'test_noncontiguous_samples'),
+           #     # TODO: FIXME: complex inputs requiring grad error in forward
+           #     DecorateInfo(unittest.skip("Skipped!"), 'TestCommon', 'test_dtypes'),
+           #     # JIT has issue when op is passed as lambda
+           #     # NotImplementedError: Cannot access storage of SparseTensorImpl
+           #     DecorateInfo(unittest.skip("Skipped!"), 'TestJit', 'test_variant_consistency_jit'),
+           #     # Allowed exception: sparse tensors don't have strides
+           #     DecorateInfo(unittest.expectedFailure, 'TestCommon', 'test_composite_compliance'),
+           #     # TODO: implement csr.to_sparse(sample_dim) where sampled_dim is 1.
+           #     DecorateInfo(unittest.skip("csr.to_sparse(1) not implemented. Skipped!"),
+           #                  'TestSparseCSR', 'test_sparse_csr_consistency'),
+           # )
+           ),
     OpInfo('logcumsumexp',
            dtypes=floating_types_and(),
            dtypesIfCUDA=floating_types_and(torch.half, torch.bfloat16),
