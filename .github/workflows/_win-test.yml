@@ -38,7 +38,7 @@ jobs:
           no-sudo: true
 
       - name: Setup Windows
-        uses: pytorch/pytorch/.github/actions/setup-win@master
+        uses: ./.github/actions/setup-win
         with:
           github-secret: ${{ secrets.GITHUB_TOKEN }}
           cuda-version: ${{ inputs.cuda-version }}
@@ -82,11 +82,17 @@ jobs:
         run: |
           .jenkins/pytorch/win-test.sh
 
+      - name: Get workflow job id
+        id: get-job-id
+        uses: ./.github/actions/get-workflow-job-id
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload test artifacts
-        uses: pytorch/pytorch/.github/actions/upload-test-artifacts@master
+        uses: ./.github/actions/upload-test-artifacts-s3
         if: always()
         with:
-          file-suffix: ${{ github.job }}-${{ matrix.config }}-${{ matrix.shard }}-${{ matrix.num_shards }}-${{ matrix.runner }}
+          file-suffix: ${{ github.job }}-${{ matrix.config }}-${{ matrix.shard }}-${{ matrix.num_shards }}-${{ matrix.runner }}_${{ steps.get-job-id.outputs.job-id }}
 
       - name: Parse ref
         id: parse-ref
@@ -115,6 +121,6 @@ jobs:
           python3 -m tools.stats.print_test_stats --upload-to-s3 --compare-with-s3 test
 
       - name: Teardown Windows
-        uses: pytorch/pytorch/.github/actions/teardown-win@master
+        uses: ./.github/actions/teardown-win
         if: always()
         timeout-minutes: 120
