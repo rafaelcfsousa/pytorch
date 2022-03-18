@@ -120,7 +120,8 @@ def run_gen_lazy_tensor(aten_path: str, source_yaml: str, output_dir: str,
                         tensor_class: str = default_args.tensor_class,
                         tensor_class_hdr: str = default_args.tensor_class_hdr,
                         shape_inference_hdr: str = default_args.shape_inference_hdr,
-                        lazy_ir_cls: Type[LazyIR] = default_args.lazy_ir_cls) -> None:
+                        lazy_ir_cls: Type[LazyIR] = default_args.lazy_ir_cls,
+                        per_operator_headers: bool = False) -> None:
 
     template_dir = os.path.join(aten_path, "templates")
 
@@ -222,9 +223,13 @@ def run_gen_lazy_tensor(aten_path: str, source_yaml: str, output_dir: str,
                                        grouped_native_functions, backend_key, autograd_key)
 
     # Generate Dispatcher registrations which hook up the nativefunctions
+    internal_headers = [
+        "torch/csrc/lazy/generated/LazyNativeFunctions.h",
+    ]
     for dispatch_key in [backend_key] if autograd_key is None else [backend_key, autograd_key]:
-        gen_dispatcher_registrations(fm, output_dir, cpp_namespace, backend_indices, grouped_native_functions,
-                                     backend_key, dispatch_key, selector)
+        gen_dispatcher_registrations(fm, "torch/csrc/lazy/generated/", cpp_namespace, backend_indices, grouped_native_functions,
+                                     backend_key, dispatch_key, selector, internal_headers,
+                                     skip_external_nativefunc=True, per_operator_headers=per_operator_headers)
 
     # Generate native function impls that build IR nodes
     ns_helper = NamespaceHelper(cpp_namespace)
@@ -235,12 +240,13 @@ def run_gen_lazy_tensor(aten_path: str, source_yaml: str, output_dir: str,
             "ATen/Functions.h",
             "ATen/MetaFunctions.h",
             "ATen/Operators.h",
+            "ATen/native/CPUFallback.h",
             "torch/csrc/lazy/core/lazy_graph_executor.h",
             "torch/csrc/lazy/core/metrics.h",
             "torch/csrc/lazy/core/shape.h",
-            "lazy_tensor_core/csrc/ts_backend/aten_eager_fallback.h",
-            f"{output_dir}/{backend_key}NativeFunctions.h",
-            f"{output_dir}/{backend_key}LazyIr.h",
+            f"torch/csrc/lazy/generated/{backend_key}NativeFunctions.h",
+            "torch/csrc/lazy/generated/LazyIr.h",
+            "torch/csrc/lazy/ts_backend/ts_eager_fallback.h",
         ]],
         'native_functions_include': '',
         'namespace_prologue': ns_helper.prologue,

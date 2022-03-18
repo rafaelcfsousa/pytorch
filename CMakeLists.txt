@@ -337,6 +337,8 @@ cmake_dependent_option(USE_CCACHE "Attempt using CCache to wrap the compilation"
 option(WERROR "Build with -Werror supported by the compiler" OFF)
 option(USE_COREML_DELEGATE "Use the CoreML backend through delegate APIs" OFF)
 option(USE_PER_OPERATOR_HEADERS "Whether ATen should generate separate headers for each operator" ON)
+cmake_dependent_option(
+    BUILD_LAZY_TS_BACKEND "Build the lazy Torchscript backend, not compatible with mobile or any build disabling autograd" ON "INTERN_BUILD_MOBILE" OFF)
 
 
 if(USE_CCACHE)

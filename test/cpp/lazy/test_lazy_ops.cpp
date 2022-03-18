@@ -7,10 +7,6 @@
 #include <torch/csrc/lazy/core/debug_util.h>
 #include <torch/csrc/lazy/core/lazy_graph_executor.h>
 #include <torch/csrc/lazy/core/permutation_util.h>
-
-// Land unused tests first/separately since it is a large diff
-#if 0
-
 #include <torch/csrc/lazy/ts_backend/ts_backend_impl.h>
 #include <torch/torch.h>
 
@@ -75,6 +71,10 @@ static inline at::DeviceType DefaultDevice() {
 
 
 }  // namespace
+
+TEST(LazySanity, AssertFalse) {
+  CHECK_EQ(1, 2) << "Purposely failing to make sure test is running";
+}
 
 TEST_F(LazyOpsTest, TestScalarTensor) {
   torch::Tensor scalar_tensor = torch::scalar_tensor(
@@ -10686,4 +10686,3 @@ TEST_F(LazyOpsTest, TestLerpScalarOut) {
 
 }  // namespace lazy
 }  // namespace torch
-#endif // if 0
