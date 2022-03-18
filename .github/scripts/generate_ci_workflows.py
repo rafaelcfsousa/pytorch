@@ -714,6 +714,7 @@ LINUX_WORKFLOWS = [
         num_test_shards=2,
         enable_distributed_test=False,
         enable_noarch_test=True,
+        enable_slow_test=True,
         ciflow_config=CIFlowConfig(
             labels={LABEL_CIFLOW_DEFAULT, LABEL_CIFLOW_LINUX, LABEL_CIFLOW_CPU, LABEL_CIFLOW_NOARCH},
         ),
