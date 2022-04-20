@@ -125,7 +125,7 @@ struct Vectorized<c10::qint32> {
       const float_vec_return_type& rhs,
       float scale,
       int32_t zero_point,
-      float inverse_scale) {
+      __attribute__((unused)) float inverse_scale) {
     Vectorized<c10::qint32> retval;
 
     const vint32 vmin = vec_splats(std::numeric_limits<value_type>::min());
@@ -169,7 +169,7 @@ struct Vectorized<c10::qint32> {
 
   static Vectorized<c10::qint32> requantize_from_int(
       const int_vec_return_type& inp,
-      float multiplier,
+      __attribute__((unused)) float multiplier,
       int32_t zero_point) {
     const vint32 vmin = vec_splats(std::numeric_limits<value_type>::min());
     const vint32 vmax = vec_splats(std::numeric_limits<value_type>::max());

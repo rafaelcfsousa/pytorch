@@ -41,7 +41,7 @@ class Vectorized<double> {
   C10_ALWAYS_INLINE Vectorized(vbool64 vmask) : _vecb0{vmask}, _vecb1{vmask} {}
   C10_ALWAYS_INLINE Vectorized(vfloat64 v1, vfloat64 v2) : _vec0{v1}, _vec1{v2} {}
   C10_ALWAYS_INLINE Vectorized(vbool64 v1, vbool64 v2) : _vecb0{v1}, _vecb1{v2} {}
-  C10_ALWAYS_INLINE Vectorized(double scalar)
+  C10_ALWAYS_INLINE Vectorized(__attribute__((unused)) double scalar)
       : _vec0{vec_splats(scalar)}, _vec1{vec_splats(scalar)} {}
   C10_ALWAYS_INLINE Vectorized(
       double scalar1,

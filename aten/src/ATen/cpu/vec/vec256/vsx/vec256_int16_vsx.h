@@ -140,20 +140,20 @@ class Vectorized<int16_t> {
       (mask > 255 && ((mask & 65535) != 65535) && ((mask & 255) == 0)),
       Vectorized<int16_t>>
       C10_ALWAYS_INLINE blend(const Vectorized<int16_t>& a, const Vectorized<int16_t>& b) {
-    constexpr int16_t mask2 = (mask & 65535) >> 16;
-    constexpr int16_t g0_2 = (mask & 1) * 0xffff;
-    constexpr int16_t g1_2 = ((mask & 2) >> 1) * 0xffff;
-    constexpr int16_t g2_2 = ((mask & 4) >> 2) * 0xffff;
-    constexpr int16_t g3_2 = ((mask & 8) >> 3) * 0xffff;
-    constexpr int16_t g4_2 = ((mask & 16) >> 4) * 0xffff;
-    constexpr int16_t g5_2 = ((mask & 32) >> 5) * 0xffff;
-    constexpr int16_t g6_2 = ((mask & 64) >> 6) * 0xffff;
-    constexpr int16_t g7_2 = ((mask & 128) >> 7) * 0xffff;
+    constexpr int16_t mask2 = (mask & 65535) >> 8;
+    constexpr int16_t g0_2 = (mask2 & 1) * 0xffff;
+    constexpr int16_t g1_2 = ((mask2 & 2) >> 1) * 0xffff;
+    constexpr int16_t g2_2 = ((mask2 & 4) >> 2) * 0xffff;
+    constexpr int16_t g3_2 = ((mask2 & 8) >> 3) * 0xffff;
+    constexpr int16_t g4_2 = ((mask2 & 16) >> 4) * 0xffff;
+    constexpr int16_t g5_2 = ((mask2 & 32) >> 5) * 0xffff;
+    constexpr int16_t g6_2 = ((mask2 & 64) >> 6) * 0xffff;
+    constexpr int16_t g7_2 = ((mask2 & 128) >> 7) * 0xffff;
 
     const vint16 mask_2nd =
         vint16{g0_2, g1_2, g2_2, g3_2, g4_2, g5_2, g6_2, g7_2};
     // generated masks
-    return {a, (vint16)vec_sel(a._vec1, b._vec1, (vbool16)mask_2nd)};
+    return {a._vec0, (vint16)vec_sel(a._vec1, b._vec1, (vbool16)mask_2nd)};
   }
 
   template <uint64_t mask>
@@ -170,15 +170,15 @@ class Vectorized<int16_t> {
     constexpr int16_t g5 = ((mask & 32) >> 5) * 0xffff;
     constexpr int16_t g6 = ((mask & 64) >> 6) * 0xffff;
     constexpr int16_t g7 = ((mask & 128) >> 7) * 0xffff;
-    constexpr int16_t mask2 = (mask & 65535) >> 16;
-    constexpr int16_t g0_2 = (mask & 1) * 0xffff;
-    constexpr int16_t g1_2 = ((mask & 2) >> 1) * 0xffff;
-    constexpr int16_t g2_2 = ((mask & 4) >> 2) * 0xffff;
-    constexpr int16_t g3_2 = ((mask & 8) >> 3) * 0xffff;
-    constexpr int16_t g4_2 = ((mask & 16) >> 4) * 0xffff;
-    constexpr int16_t g5_2 = ((mask & 32) >> 5) * 0xffff;
-    constexpr int16_t g6_2 = ((mask & 64) >> 6) * 0xffff;
-    constexpr int16_t g7_2 = ((mask & 128) >> 7) * 0xffff;
+    constexpr int16_t mask2 = (mask & 65535) >> 8;
+    constexpr int16_t g0_2 = (mask2 & 1) * 0xffff;
+    constexpr int16_t g1_2 = ((mask2 & 2) >> 1) * 0xffff;
+    constexpr int16_t g2_2 = ((mask2 & 4) >> 2) * 0xffff;
+    constexpr int16_t g3_2 = ((mask2 & 8) >> 3) * 0xffff;
+    constexpr int16_t g4_2 = ((mask2 & 16) >> 4) * 0xffff;
+    constexpr int16_t g5_2 = ((mask2 & 32) >> 5) * 0xffff;
+    constexpr int16_t g6_2 = ((mask2 & 64) >> 6) * 0xffff;
+    constexpr int16_t g7_2 = ((mask2 & 128) >> 7) * 0xffff;
 
     const vint16 mask_1st = vint16{g0, g1, g2, g3, g4, g5, g6, g7};
     const vint16 mask_2nd =

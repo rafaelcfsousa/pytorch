@@ -40,7 +40,7 @@ class Vectorized<float> {
   C10_ALWAYS_INLINE Vectorized(vbool32 vmask) : _vecb0{vmask}, _vecb1{vmask} {}
   C10_ALWAYS_INLINE Vectorized(vfloat32 v1, vfloat32 v2) : _vec0{v1}, _vec1{v2} {}
   C10_ALWAYS_INLINE Vectorized(vbool32 v1, vbool32 v2) : _vecb0{v1}, _vecb1{v2} {}
-  C10_ALWAYS_INLINE Vectorized(float scalar)
+  C10_ALWAYS_INLINE Vectorized(__attribute__((unused)) float scalar)
       : _vec0{vec_splats(scalar)}, _vec1{vec_splats(scalar)} {}
   C10_ALWAYS_INLINE Vectorized(
       float scalar1,
@@ -551,6 +551,8 @@ class Vectorized<float> {
   }
 
   Vectorized<float> C10_ALWAYS_INLINE pow(const Vectorized<float>& exp) const {
+    //return {Sleef_fmodd4_vsx(_vec0, b._vec0),Sleef_fmodd2_vsx(_vec1, b._vec1);
+    return {Sleef_powf4_u10vsx(_vec0, exp._vec0), Sleef_powf4_u10vsx(_vec1, exp._vec1)};
     auto x = *this;
     auto sign_bit = (*this) & sign_mask;
     // |b|

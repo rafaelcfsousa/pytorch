@@ -3,7 +3,7 @@ set -x
 set -e
 
 VALGRIND_SUP="${PWD}/`dirname $0`/valgrind.sup"
-pushd $1
+cd $1
 
 VALGRIND=${VALGRIND:=ON}
 ./basic
@@ -71,4 +71,4 @@ if [ "$VALGRIND" == "ON" ]; then
   fi
 fi
 
-popd
+cd ..

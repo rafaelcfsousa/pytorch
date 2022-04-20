@@ -286,6 +286,22 @@ constexpr vbool32 VsxMask2(uint32_t mask) {
   return VsxMask1(mask2);
 }
 
+constexpr vbool16 VsxHalfWMask1(uint32_t mask) {
+  uint16_t g0 = (mask & 1) * 0xFFFF;
+  uint16_t g1 = ((mask & 2) >> 1) * 0xFFFF;
+  uint16_t g2 = ((mask & 4) >> 2) * 0xFFFF;
+  uint16_t g3 = ((mask & 8) >> 3) * 0xFFFF;
+  uint16_t g4 = ((mask & 16) >> 4) * 0xFFFF;
+  uint16_t g5 = ((mask & 32) >> 5) * 0xFFFF;
+  uint16_t g6 = ((mask & 64) >> 6) * 0xFFFF;
+  uint16_t g7 = ((mask & 128) >> 7) * 0xFFFF;
+  return (vbool16){g0, g1, g2, g3, g4, g5, g6, g7};
+}
+
+constexpr vbool16 VsxHalfWMask2(uint32_t mask) {
+  uint32_t mask2 = (mask & 0xFFFF) >> 8;
+  return VsxHalfWMask1(mask2);
+}
 constexpr vbool64 VsxDblMask1(uint32_t mask) {
   uint64_t g0 = (mask & 1) * 0xffffffffffffffff;
   uint64_t g1 = ((mask & 2) >> 1) * 0xffffffffffffffff;
@@ -356,6 +372,7 @@ const vuint8 swap_mask =
     vuint8{4, 5, 6, 7, 0, 1, 2, 3, 12, 13, 14, 15, 8, 9, 10, 11};
 
 const vint32 v0x7f = vec_splats(0x7f);
+const vint32 v0x7fff = vec_splats(0x7fff);
 const vint32 vi_0 = vec_splats((int)(0));
 const vint32 vi_1 = vec_splats((int)1);
 const vint32 vi_2 = vec_splats((int)2);
@@ -363,6 +380,7 @@ const vint32 vi_4 = vec_splats((int)4);
 const vint32 vi_inv1 = vec_splats((int)~1);
 const vuint32 vu_29 = vec_splats(29u);
 const vuint32 vu_23 = vec_splats(23u);
+const vuint32 vu_16 = vec_splats(16u);
 
 const vbool32 inv_mant_mask = (vbool32)vec_splats((unsigned int)~0xff800000);
 const vbool32 sign_mask = (vbool32)vec_splats((int)0x80000000);
