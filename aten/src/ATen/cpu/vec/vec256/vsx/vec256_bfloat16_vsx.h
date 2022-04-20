@@ -272,134 +272,191 @@ class Vectorized<BFloat16> {
     }
   }
 
+  // TODO
   int zero_mask() const {
     return 0;
   }
 
-  Vectorized<BFloat16> abs() const {
-    return *this;
+  template <typename Op>
+  Vectorized<BFloat16> static C10_ALWAYS_INLINE map_unary_op(
+      const Vectorized<BFloat16>& v,
+      Op op) {
+    vfloat32 v1, v2, v3, v4;
+    convertBF16ToF32(v.vec0(), v1, v2);
+    convertBF16ToF32(v.vec1(), v3, v4);
+    auto r1 = op(v1);
+    auto r2 = op(v2);
+    auto r3 = op(v3);
+    auto r4 = op(v4);
+    return {
+        (vuint16)convertF32ToBF16(r1, r2), (vuint16)convertF32ToBF16(r3, r4)};
   }
+
+  Vectorized<BFloat16> abs() const {
+    return map_unary_op(*this, [](vfloat32& v) { return vec_abs(v); });
+  }
+  // TODO
   Vectorized<BFloat16> angle() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> real() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> imag() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> conj() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> acos() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> asin() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> atan() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> atan2(const Vectorized<BFloat16>& b) const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> copysign(const Vectorized<BFloat16>& sign) const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> erf() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> erfc() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> erfinv() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> exp() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> expm1() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> fmod(const Vectorized<BFloat16>& q) const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> hypot(const Vectorized<BFloat16>& b) const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> i0() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> i0e() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> igamma(const Vectorized<BFloat16>& x) const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> igammac(const Vectorized<BFloat16>& x) const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> log() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> log2() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> log10() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> log1p() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> sin() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> sinh() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> cos() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> cosh() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> ceil() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> floor() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> neg() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> round() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> tan() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> tanh() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> trunc() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> lgamma() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> sqrt() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> reciprocal() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> rsqrt() const {
     return *this;
   }
+  // TODO
   Vectorized<BFloat16> pow(const Vectorized<BFloat16>& b) const {
     return *this;
   }
 
+  // TODO
   Vectorized<BFloat16> frac() const {
     return *this;
   }
@@ -572,6 +629,7 @@ Vectorized<BFloat16> C10_ALWAYS_INLINE fmadd(
 }
 
 template <>
+// TODO
 Vectorized<BFloat16> inline maximum(
     const Vectorized<BFloat16>& a,
     const Vectorized<BFloat16>& b) {
@@ -579,6 +637,7 @@ Vectorized<BFloat16> inline maximum(
 }
 
 template <>
+// TODO
 Vectorized<BFloat16> inline minimum(
     const Vectorized<BFloat16>& a,
     const Vectorized<BFloat16>& b) {
@@ -586,6 +645,7 @@ Vectorized<BFloat16> inline minimum(
 }
 
 template <>
+// TODO
 Vectorized<BFloat16> inline clamp(
     const Vectorized<BFloat16>& a,
     const Vectorized<BFloat16>& min,
@@ -594,6 +654,7 @@ Vectorized<BFloat16> inline clamp(
 }
 
 template <>
+// TODO
 Vectorized<BFloat16> inline clamp_max(
     const Vectorized<BFloat16>& a,
     const Vectorized<BFloat16>& max) {
@@ -601,6 +662,7 @@ Vectorized<BFloat16> inline clamp_max(
 }
 
 template <>
+// TODO
 Vectorized<BFloat16> inline clamp_min(
     const Vectorized<BFloat16>& a,
     const Vectorized<BFloat16>& min) {
@@ -608,8 +670,10 @@ Vectorized<BFloat16> inline clamp_min(
 }
 
 template <>
+// TODO
 inline void convert(const BFloat16* src, BFloat16* dst, int64_t n) {}
 
+// TODO : UPDATE
 inline std::tuple<Vectorized<float>, Vectorized<float>> convert_bfloat16_float(
     const Vectorized<BFloat16>& a) {
   constexpr int64_t K = Vectorized<BFloat16>::size();
@@ -622,6 +686,7 @@ inline std::tuple<Vectorized<float>, Vectorized<float>> convert_bfloat16_float(
       Vectorized<float>::loadu(arr + Vectorized<float>::size()));
 }
 
+// TODO : UPDATE
 inline Vectorized<BFloat16> convert_float_bfloat16(
     const Vectorized<float>& a,
     const Vectorized<float>& b) {
@@ -634,6 +699,7 @@ inline Vectorized<BFloat16> convert_float_bfloat16(
   return Vectorized<BFloat16>::loadu(arr2);
 }
 
+// TODO : UPDATE
 inline void load_fp32_from_bf16(
     const c10::BFloat16* data,
     Vectorized<float>& out) {
@@ -644,6 +710,7 @@ inline void load_fp32_from_bf16(
   out = Vectorized<float>::loadu(values);
 }
 
+// TODO : UPDATE
 inline void load_fp32_from_bf16(
     const c10::BFloat16* data,
     Vectorized<float>& out1,
