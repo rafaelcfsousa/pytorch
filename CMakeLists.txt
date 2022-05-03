@@ -124,11 +124,14 @@ endif()
 
 set(CPU_AARCH64 OFF)
 set(CPU_INTEL OFF)
+set(CPU_POWER OFF)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "(AMD64|x86_64)")
   set(CPU_INTEL ON)
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)")
   set(CPU_AARCH64 ON)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(ppc64le)")
+  set(CPU_POWER ON)
 endif()
 
 
@@ -296,7 +299,7 @@ option(USE_ZSTD "Use ZSTD" OFF)
 # but optional for AArch64 (dependent on -DUSE_MKLDNN).
 cmake_dependent_option(
   USE_MKLDNN "Use MKLDNN. Only available on x86, x86_64, and AArch64." "${CPU_INTEL}"
-  "CPU_INTEL OR CPU_AARCH64" OFF)
+  "CPU_INTEL OR CPU_AARCH64 OR CPU_POWER" OFF)
 cmake_dependent_option(
   USE_MKLDNN_ACL "Use Compute Library for the Arm architecture." OFF
   "USE_MKLDNN AND CPU_AARCH64" OFF)
