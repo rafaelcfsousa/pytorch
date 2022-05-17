@@ -41,6 +41,9 @@ namespace {
 }
 
 size_t getDefaultNumThreads() {
+#if CPUINFO_ARCH_PPC64
+  return 8;
+#endif
   CAFFE_ENFORCE(cpuinfo_initialize(), "cpuinfo initialization failed");
   int numThreads = cpuinfo_get_processors_count();
 

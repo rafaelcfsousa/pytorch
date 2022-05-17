@@ -337,6 +337,15 @@ static void init(void) {
   pytorch_qnnp_params.u8rmax = pytorch_u8rmax_ukernel__sse2;
   pytorch_qnnp_params.u8lut32norm = pytorch_u8lut32norm_ukernel__scalar;
   pytorch_qnnp_params.x8lut = pytorch_x8lut_ukernel__scalar;
+#elif CPUINFO_ARCH_PPC64
+  pytorch_qnnp_params.q8conv = (struct pytorch_q8conv_parameters){
+      .gemm = pytorch_q8gemm_ukernel_4x4c2__vsx,
+      .conv = pytorch_q8conv_ukernel_4x4c2__vsx,
+      .gemm_dq = pytorch_q8gemm_dq_ukernel_4x4c2__vsx,
+      .mr = 1,
+      .nr = 1,
+      .kr = 1,
+  };
 #else
 #error "Unsupported architecture"
 #endif
@@ -344,9 +353,11 @@ static void init(void) {
 }
 
 enum pytorch_qnnp_status pytorch_qnnp_initialize(void) {
+#if !CPUINFO_ARCH_PPC64
   if (!cpuinfo_initialize()) {
     return pytorch_qnnp_status_out_of_memory;
   }
+#endif
 #ifdef _MSC_VER
   InitOnceExecuteOnce(&init_guard, pytorch_qnnp_init_win, NULL, NULL);
 #else
