@@ -25,8 +25,12 @@ std::vector<int64_t> pool_output_sizes(
 };
 
 inline bool mkldnn_bf16_device_check() {
+#ifdef CPUINFO_ARCH_PPC64
+  return 0;
+#else
   return cpuinfo_initialize() && cpuinfo_has_x86_avx512bw()
       && cpuinfo_has_x86_avx512vl() && cpuinfo_has_x86_avx512dq();
+#endif
 }
 
 }
