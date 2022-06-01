@@ -342,9 +342,9 @@ static void init(void) {
       .gemm = pytorch_q8gemm_ukernel_4x4c2__vsx,
       .conv = pytorch_q8conv_ukernel_4x4c2__vsx,
       .gemm_dq = pytorch_q8gemm_dq_ukernel_4x4c2__vsx,
-      .mr = 1,
-      .nr = 1,
-      .kr = 1,
+      .mr = 4,
+      .nr = 4,
+      .kr = 2,
   };
 #else
 #error "Unsupported architecture"
