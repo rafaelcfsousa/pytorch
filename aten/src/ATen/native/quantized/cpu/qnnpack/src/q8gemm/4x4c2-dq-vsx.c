@@ -281,6 +281,7 @@ void pytorch_q8gemm_dq_ukernel_4x4c2__vsx(
     const vector unsigned char va_shift =
         {8 * a_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+    // TODO(Rafael): Check if the accesses here are accessing valid memory
     const vector unsigned char va0 =
         vec_sro(vec_xl(-a_predecrement, a0), va_shift);
     const vector signed short vxa0_hi =
