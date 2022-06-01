@@ -30,3 +30,11 @@
       return;                                                          \
     }                                                                  \
   } while (0)
+
+// TODO(rafael): Use cpuinfo
+#define TEST_REQUIRES_X86_VSX \
+  do {                        \
+    if (0) {                  \
+      return;                 \
+    }                         \
+  } while (0)
