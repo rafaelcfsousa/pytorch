@@ -3818,3 +3818,39 @@ TEST(Q8GEMM_DQ_4x4c2__SSE2, k_div_8_subtile) {
   }
 }
 #endif
+
+#if CPUINFO_ARCH_PPC64
+TEST(Q8GEMM_DQ_4x4c2__VSX, k_div_8_strided_c) {
+  for (size_t k = 16; k < 128; k += 8) {
+    GemmMicrokernelTester()
+        .mr(4)
+        .nr(4)
+        .np(4)
+        .kr(2)
+        .m(4)
+        .n(4)
+        .k(k)
+        .cStride(17)
+        .test(pytorch_q8gemm_dq_ukernel_4x4c2__vsx);
+  }
+}
+
+TEST(Q8GEMM_DQ_4x4c2__VSX, k_div_8_subtile) {
+  for (size_t k = 16; k <= 128; k+=24) {
+    for (uint32_t m = 1; m <= 4; m++) {
+      for (uint32_t n = 1; n <= 4; n++) {
+        GemmMicrokernelTester()
+            .mr(4)
+            .nr(4)
+            .np(4)
+            .kr(2)
+            .m(m)
+            .n(n)
+            .k(k)
+            .iterations(3)
+            .test(pytorch_q8gemm_dq_ukernel_4x4c2__vsx);
+      }
+    }
+  }
+}
+#endif
