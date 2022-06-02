@@ -9,7 +9,6 @@
 
 #include <qnnpack/q8gemm.h>
 #include <requantization/runtime-vsx.h>
-#include <stdio.h>
 
 void pytorch_q8gemm_dq_ukernel_4x4c2__vsx(
     size_t mr,
