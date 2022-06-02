@@ -162,6 +162,16 @@ union pytorch_qnnp_conv_quantization_params {
     PYTORCH_QNNP_ALIGN(16) uint8_t output_min[16];
   } sse2;
 #endif /* CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64 */
+#if CPUINFO_ARCH_PPC64
+  struct {
+    const uint8_t* kernel_zero_points;
+    int16_t input_zero_point;
+    const float* requantization_scales;
+    int16_t output_zero_point;
+    uint8_t output_max;
+    uint8_t output_min;
+  } vsx;
+#endif /* CPUINFO_ARCH_PPC64 */
 };
 
 struct pytorch_qnnp_conv_dynamic_quantization_params {

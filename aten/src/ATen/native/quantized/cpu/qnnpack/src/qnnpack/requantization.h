@@ -183,6 +183,13 @@ pytorch_qnnp_compute_conv_quantization_params(
   params.neon.vfmagic = 12582912.0f;
   params.neon.vimagic = (INT32_C(0x4B400000) -
       (int32_t)(uint32_t)output_zero_point);
+#elif CPUINFO_ARCH_PPC64
+  params.vsx.input_zero_point = (int16_t)(uint16_t)input_zero_point;
+  params.vsx.kernel_zero_points = kernel_zero_points;
+  params.vsx.requantization_scales = requantization_scales;
+  params.vsx.output_zero_point = (int16_t)(uint16_t)output_zero_point;
+  params.vsx.output_max = output_max;
+  params.vsx.output_min = output_min;
 #else
   params.scalar.input_zero_point = (int32_t)(uint32_t)input_zero_point;
   params.scalar.kernel_zero_points = kernel_zero_points;
