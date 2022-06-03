@@ -24,7 +24,7 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
     const union pytorch_qnnp_conv_quantization_params
         quantization_params[RESTRICT_STATIC 1]) {
 
-  vector signed int vacc0x0123 = vec_xl(0, (const unsigned char *)w);
+  vector signed int vacc0x0123 = vec_xl(0, (const int *)w);
   vector signed int vacc1x0123 = vacc0x0123;
   vector signed int vacc2x0123 = vacc0x0123;
   vector signed int vacc3x0123 = vacc0x0123;
@@ -155,6 +155,8 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
     vacc2x0123 = vec_msum(vxa2_hi_23, vxb1, vacc2x0123);
     vacc3x0123 = vec_msum(vxa3_hi_23, vxb1, vacc3x0123);
 
+    // TODO: Maybe it would be better to load more data here and use
+    // it below instead of uisng shifts.
     const vector unsigned char vb2 =
         vec_sro(vec_xl(-8, (const unsigned char *)w), shift_w);
     const vector signed short vxb2 =
@@ -282,6 +284,7 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
         {8 * a_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     // TODO(Rafael): Check if the accesses here are accessing valid memory
+    // valgrind shows that it does not hvae leak of memory
     const vector unsigned char va0 =
         vec_sro(vec_xl(-a_predecrement, a0), va_shift);
     const vector signed short vxa0_hi =
