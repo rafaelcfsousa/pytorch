@@ -8,7 +8,7 @@
 
 #include <altivec.h>
 
-#include <qnnpack/q8gemm.h>
+#include <qnnpack/q8conv.h>
 #include <requantization/runtime-vsx.h>
 
 void pytorch_q8conv_ukernel_4x4c2__vsx(
