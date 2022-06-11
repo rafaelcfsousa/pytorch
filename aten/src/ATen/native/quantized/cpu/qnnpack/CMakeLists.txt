@@ -267,6 +267,9 @@ set(PYTORCH_QNNPACK_X86_SSE2_UKERNELS
   src/x8zip/xm-sse2.c)
 
 set(PYTORCH_QNNPACK_PPC64LE_VSX_UKERNELS
+  src/q8avgpool/mp8x9p8q-vsx.c
+  src/q8avgpool/up16x9-vsx.c
+  src/q8avgpool/up16xm-vsx.c
   src/q8conv/4x4c2-vsx.c
   src/q8gemm/4x4c2-dq-vsx.c
   src/q8gemm/4x4c2-vsx.c)

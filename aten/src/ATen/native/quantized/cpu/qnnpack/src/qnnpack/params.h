@@ -262,6 +262,16 @@ union pytorch_qnnp_avgpool_quantization_params {
     PYTORCH_QNNP_ALIGN(16) uint8_t output_min[16];
   } sse2;
 #endif
+#if CPUINFO_ARCH_PPC64
+  struct {
+    int32_t bias;
+    float scale;
+    float vfmax;
+    float vfmin;
+    float vfmagic;
+    int32_t vimagic;
+  } vsx;
+#endif
 };
 
 union pytorch_qnnp_u8_clamping_params {
