@@ -2274,4 +2274,239 @@ TEST(Q8AVGPOOL_UP16x9__VSX, small_n_with_s) {
   }
 }
 
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_small_ks) {
+  TEST_REQUIRES_VSX;
+  for (size_t kc = 1; kc < 16; kc++) {
+    for (size_t ks = 1; ks < 8; ks++) {
+      for (size_t kh = 1; kh <= ks; kh++) {
+        for (size_t kw = 1; kw <= ks; kw++) {
+          if (kh * kw == ks) {
+            AvgPoolMicrokernelTester().kr(16).kh(kh).kw(kw).kc(kc).test(
+                pytorch_q8avgpool_ukernel_up16xm__vsx);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_large_ks) {
+  TEST_REQUIRES_VSX;
+  for (size_t kc = 1; kc < 16; kc++) {
+    for (size_t ks = 8; ks < 16; ks++) {
+      AvgPoolMicrokernelTester().kr(16).kh(ks).kw(1).kc(kc).test(
+          pytorch_q8avgpool_ukernel_up16xm__vsx);
+      AvgPoolMicrokernelTester().kr(8).kh(1).kw(ks).kc(kc).test(
+          pytorch_q8avgpool_ukernel_up16xm__vsx);
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_with_x_scale) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 3; n += 2) {
+    for (size_t kc = 1; kc < 16; kc++) {
+      for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+        for (float xScale = 0.01f; xScale < 100.0f; xScale *= 3.14159265f) {
+          AvgPoolMicrokernelTester()
+              .kr(16)
+              .n(n)
+              .kh(ks)
+              .kw(ks)
+              .kc(kc)
+              .xScale(xScale)
+              .iterations(1)
+              .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_with_x_zero_point) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 3; n += 2) {
+    for (size_t kc = 1; kc < 16; kc++) {
+      for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+        for (int32_t xZeroPoint = 0; xZeroPoint <= 255; xZeroPoint += 51) {
+          AvgPoolMicrokernelTester()
+              .kr(16)
+              .n(n)
+              .kh(ks)
+              .kw(ks)
+              .kc(kc)
+              .xZeroPoint(uint8_t(xZeroPoint))
+              .iterations(1)
+              .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_with_y_scale) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 3; n += 2) {
+    for (size_t kc = 1; kc < 16; kc++) {
+      for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+        for (float yScale = 0.01f; yScale < 100.0f; yScale *= 3.14159265f) {
+          AvgPoolMicrokernelTester()
+              .kr(16)
+              .n(n)
+              .kh(ks)
+              .kw(ks)
+              .kc(kc)
+              .yScale(yScale)
+              .iterations(1)
+              .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_with_y_zero_point) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 3; n += 2) {
+    for (size_t kc = 1; kc < 16; kc++) {
+      for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+        for (int32_t yZeroPoint = 0; yZeroPoint <= 255; yZeroPoint += 51) {
+          AvgPoolMicrokernelTester()
+              .kr(16)
+              .n(n)
+              .kh(ks)
+              .kw(ks)
+              .kc(kc)
+              .yZeroPoint(uint8_t(yZeroPoint))
+              .iterations(1)
+              .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_with_y_max) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 3; n += 2) {
+    for (size_t kc = 1; kc < 16; kc++) {
+      for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .xZeroPoint(128)
+            .yZeroPoint(128)
+            .xScale(1.0f)
+            .yScale(1.0f)
+            .yMax(128)
+            .iterations(3)
+            .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, kc_lt_16_with_y_min) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 3; n += 2) {
+    for (size_t kc = 1; kc < 16; kc++) {
+      for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .xZeroPoint(128)
+            .yZeroPoint(128)
+            .xScale(1.0f)
+            .yScale(1.0f)
+            .yMin(128)
+            .iterations(3)
+            .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, small_n) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+      for (size_t kc = 1; kc < 16; kc++) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .iterations(3)
+            .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_x_stride) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+      for (size_t kc = 1; kc < 16; kc++) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .xStride(11)
+            .iterations(3)
+            .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_y_stride) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+      for (size_t kc = 1; kc < 16; kc++) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .yStride(31)
+            .iterations(3)
+            .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_s) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{2, 3, 5}}) {
+      for (size_t s = 2; s <= 5; s++) {
+        for (size_t kc = 1; kc < 16; kc++) {
+          AvgPoolMicrokernelTester()
+              .kr(16)
+              .n(n)
+              .kh(ks)
+              .kw(ks)
+              .kc(kc)
+              .s(s)
+              .iterations(1)
+              .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
+        }
+      }
+    }
+  }
+}
+
 #endif /* CPUINFO_ARCH_PPC64 */
