@@ -269,32 +269,21 @@ void pytorch_q8avgpool_ukernel_up16x9__vsx(
       }
 
       if (k & 8) {
-        output[0] = vout[0];
-        output[1] = vout[1];
-        output[2] = vout[2];
-        output[3] = vout[3];
-        output[4] = vout[4];
-        output[5] = vout[5];
-        output[6] = vout[6];
-        output[7] = vout[7];
+        *(uint64_t *)output = ((vector unsigned long long)vout)[0];
         output += 8;
         const vector unsigned char vshift2 = {
           8 * 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         vout = vec_sro(vout, vshift2);
       }
       if (k & 4) {
-        output[0] = vout[0];
-        output[1] = vout[1];
-        output[2] = vout[2];
-        output[3] = vout[3];
+        *(uint32_t *)output = ((vector unsigned int)vout)[0];
         output += 4;
         const vector unsigned char vshift2 = {
           8 * 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         vout = vec_sro(vout, vshift2);
       }
       if (k & 2) {
-        output[0] = vout[0];
-        output[1] = vout[1];
+        *(uint16_t *)output = ((vector unsigned short)vout)[0];
         output += 2;
         const vector unsigned char vshift2 = {
           8 * 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

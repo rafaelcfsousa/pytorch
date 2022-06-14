@@ -496,32 +496,16 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
   }
 
   if (nr == 4) {
-    c0[0] = vout[0];
-    c0[1] = vout[1];
-    c0[2] = vout[2];
-    c0[3] = vout[3];
-    c1[0] = vout[4];
-    c1[1] = vout[5];
-    c1[2] = vout[6];
-    c1[3] = vout[7];
-    c2[0] = vout[8];
-    c2[1] = vout[9];
-    c2[2] = vout[10];
-    c2[3] = vout[11];
-    c3[0] = vout[12];
-    c3[1] = vout[13];
-    c3[2] = vout[14];
-    c3[3] = vout[15];
+    *(uint32_t *)c0 = ((vector unsigned int)vout)[0];
+    *(uint32_t *)c1 = ((vector unsigned int)vout)[1];
+    *(uint32_t *)c2 = ((vector unsigned int)vout)[2];
+    *(uint32_t *)c3 = ((vector unsigned int)vout)[3];
   } else {
     if (nr >= 2) {
-      c0[0] = vout[0];
-      c0[1] = vout[1];
-      c1[0] = vout[4];
-      c1[1] = vout[5];
-      c2[0] = vout[8];
-      c2[1] = vout[9];
-      c3[0] = vout[12];
-      c3[1] = vout[13];
+      *(uint16_t *)c0 = ((vector unsigned short)vout)[0];
+      *(uint16_t *)c1 = ((vector unsigned short)vout)[2];
+      *(uint16_t *)c2 = ((vector unsigned short)vout)[4];
+      *(uint16_t *)c3 = ((vector unsigned short)vout)[6];
 
       nr -= 2;
       if (nr != 0) {
