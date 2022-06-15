@@ -2509,43 +2509,6 @@ TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_s) {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_fulltile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
