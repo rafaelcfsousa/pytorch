@@ -2509,4 +2509,469 @@ TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_s) {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_fulltile) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
+  const size_t ks = tester.mr() + tester.qr();
+  for (size_t kh = 1; kh <= ks; kh++) {
+    for (size_t kw = 1; kw <= ks; kw++) {
+      if (kh * kw == ks) {
+        tester.kh(kh).kw(kw).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_subtile) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
+  for (size_t ks = 10; ks < tester.mr() + tester.qr(); ks++) {
+    tester.kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    tester.kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_multipass_fulltile) {
+  TEST_REQUIRES_VSX;
+  for (size_t ks : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
+    for (size_t kh = 1; kh <= ks; kh++) {
+      for (size_t kw = 1; kw <= ks; kw++) {
+        if (kh * kw == ks) {
+          tester.kh(kh).kw(kw).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_multipass_subtile) {
+  TEST_REQUIRES_VSX;
+  for (size_t ksMax : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
+    for (size_t ks = ksMax - tester.qr() + 1; ks < ksMax; ks++) {
+      tester.kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      tester.kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_fulltile) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+  const size_t ks = 17;
+  for (size_t kc = 16; kc < 256; kc += 24) {
+    tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_subtile) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+  for (size_t ks = 10; ks < tester.mr() + tester.qr(); ks++) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_fulltile_with_x_stride) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+  const size_t ks = tester.mr() + tester.qr();
+  for (size_t kh = 1; kh <= ks; kh++) {
+    for (size_t kw = 1; kw <= ks; kw++) {
+      if (kh * kw == ks) {
+        for (size_t kc = 16; kc < 128; kc += 24) {
+          tester.kh(kh).kw(kw).kc(kc).xStride(131).test(
+              pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile) {
+  TEST_REQUIRES_VSX;
+  for (size_t ks : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+    for (size_t kh = 1; kh <= ks; kh++) {
+      for (size_t kw = 1; kw <= ks; kw++) {
+        if (kh * kw == ks) {
+          for (size_t kc = 16; kc < 128; kc += 24) {
+            tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_subtile) {
+  TEST_REQUIRES_VSX;
+  for (size_t ksMax : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+    for (size_t ks = ksMax - tester.qr() + 1; ks < ksMax; ks++) {
+      for (size_t kc = 16; kc < 128; kc += 24) {
+        tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile_with_x_stride) {
+  TEST_REQUIRES_VSX;
+  for (size_t ks : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+    for (size_t kh = 1; kh <= ks; kh++) {
+      for (size_t kw = 1; kw <= ks; kw++) {
+        if (kh * kw == ks) {
+          for (size_t kc = 16; kc < 128; kc += 24) {
+            tester.kh(kh).kw(kw).kc(kc).xStride(131).test(
+                pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+  const size_t ks = tester.mr() + tester.qr();
+  for (size_t kh = 1; kh <= ks; kh++) {
+    for (size_t kw = 1; kw <= ks; kw++) {
+      if (kh * kw == ks) {
+        for (size_t kc = 16; kc < 32; kc++) {
+          tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_subtile) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+  for (size_t ks = 10; ks < tester.mr() + tester.qr(); ks++) {
+    for (size_t kc = 16; kc < 32; kc++) {
+      tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile_with_x_stride) {
+  TEST_REQUIRES_VSX;
+  auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+  const size_t ks = tester.mr() + tester.qr();
+  for (size_t kh = 1; kh <= ks; kh++) {
+    for (size_t kw = 1; kw <= ks; kw++) {
+      if (kh * kw == ks) {
+        for (size_t kc = 16; kc < 32; kc++) {
+          tester.kh(kh).kw(kw).kc(kc).xStride(23).test(
+              pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile) {
+  TEST_REQUIRES_VSX;
+  for (size_t ks : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+    for (size_t kh = 1; kh <= ks; kh++) {
+      for (size_t kw = 1; kw <= ks; kw++) {
+        if (kh * kw == ks) {
+          for (size_t kc = 16; kc < 32; kc++) {
+            tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_subtile) {
+  TEST_REQUIRES_VSX;
+  for (size_t ksMax : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+    for (size_t ks = ksMax - tester.qr() + 1; ks < ksMax; ks++) {
+      for (size_t kc = 16; kc < 48; kc++) {
+        tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile_with_x_stride) {
+  TEST_REQUIRES_VSX;
+  for (size_t ks : std::vector<size_t>{{25, 49}}) {
+    auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
+    for (size_t kh = 1; kh <= ks; kh++) {
+      for (size_t kw = 1; kw <= ks; kw++) {
+        if (kh * kw == ks) {
+          for (size_t kc = 16; kc < 32; kc++) {
+            tester.kh(kh).kw(kw).kc(kc).xStride(23).test(
+                pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_x_scale) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 5; n += 2) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      for (float xScale = 0.01f; xScale < 100.0f; xScale *= 3.14159265f) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(5)
+            .kw(5)
+            .kc(kc)
+            .xScale(xScale)
+            .iterations(1)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_x_zero_point) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 5; n += 2) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      for (int32_t xZeroPoint = 0; xZeroPoint <= 255; xZeroPoint += 51) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(5)
+            .kw(5)
+            .kc(kc)
+            .xZeroPoint(uint8_t(xZeroPoint))
+            .iterations(1)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_scale) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 5; n += 2) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      for (float yScale = 0.01f; yScale < 100.0f; yScale *= 3.14159265f) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(5)
+            .kw(5)
+            .kc(kc)
+            .yScale(yScale)
+            .iterations(1)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_zero_point) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 5; n += 2) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      for (int32_t yZeroPoint = 0; yZeroPoint <= 255; yZeroPoint += 51) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(5)
+            .kw(5)
+            .kc(kc)
+            .yZeroPoint(uint8_t(yZeroPoint))
+            .iterations(1)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_max) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 5; n += 2) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      AvgPoolMicrokernelTester()
+          .kr(16)
+          .mr(9)
+          .qr(8)
+          .n(n)
+          .kh(5)
+          .kw(5)
+          .kc(kc)
+          .xZeroPoint(128)
+          .yZeroPoint(128)
+          .xScale(1.0f)
+          .yScale(1.0f)
+          .yMax(128)
+          .iterations(3)
+          .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_8_with_y_min) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 1; n <= 5; n += 2) {
+    for (size_t kc = 16; kc < 128; kc += 24) {
+      AvgPoolMicrokernelTester()
+          .kr(16)
+          .mr(9)
+          .qr(8)
+          .n(n)
+          .kh(5)
+          .kw(5)
+          .kc(kc)
+          .xZeroPoint(128)
+          .yZeroPoint(128)
+          .xScale(1.0f)
+          .yScale(1.0f)
+          .yMin(128)
+          .iterations(3)
+          .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{5, 7}}) {
+      for (size_t kc = 16; kc < 35; kc += 5) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_x_stride) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{5, 7}}) {
+      for (size_t kc = 16; kc < 35; kc += 5) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .xStride(29)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_y_stride) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{5, 7}}) {
+      for (size_t kc = 16; kc < 35; kc += 5) {
+        AvgPoolMicrokernelTester()
+            .kr(16)
+            .mr(9)
+            .qr(8)
+            .n(n)
+            .kh(ks)
+            .kw(ks)
+            .kc(kc)
+            .yStride(31)
+            .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+      }
+    }
+  }
+}
+
+TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_s) {
+  TEST_REQUIRES_VSX;
+  for (size_t n = 2; n < 5; n++) {
+    for (size_t ks : std::vector<size_t>{{5, 7}}) {
+      for (size_t s = 2; s <= 5; s++) {
+        for (size_t kc = 16; kc < 35; kc += 5) {
+          AvgPoolMicrokernelTester()
+              .kr(16)
+              .mr(9)
+              .qr(8)
+              .n(n)
+              .kh(ks)
+              .kw(ks)
+              .kc(kc)
+              .s(s)
+              .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        }
+      }
+    }
+  }
+}
 #endif /* CPUINFO_ARCH_PPC64 */
