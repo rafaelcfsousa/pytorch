@@ -22,10 +22,8 @@ void pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx(
     uint8_t* output,
     const union pytorch_qnnp_avgpool_quantization_params
         quantization_params[RESTRICT_STATIC 1]) {
-  printf("pytorch_q8gavgpool_ukernel_mp16x7p7q m=%d n=%d\n", m, n);
-  /*
   assert(m > 7);
-  assert(n >= 8);
+  assert(n >= 16);
 
   const uint8_t* i0 = input;
   const uint8_t* i1 = i0 + input_stride;
@@ -34,56 +32,88 @@ void pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx(
   const uint8_t* i4 = i3 + input_stride;
   const uint8_t* i5 = i4 + input_stride;
   const uint8_t* i6 = i5 + input_stride;
-  const size_t packed_n = (n + 7) & -8;
+  const size_t packed_n = (n + 15) & -16;
   const size_t input_increment = 7 * input_stride - packed_n;
-  const __m128i vbias =
-      _mm_load_si128((const __m128i*)&quantization_params->sse2.bias);
-  const __m128i vzero = _mm_setzero_si128();
 
+  const vector int vbias = vec_splats(quantization_params->vsx.bias);
+  const vector float vscale = vec_splats(quantization_params->vsx.scale);
+  const vector float vfmin = vec_splats(quantization_params->vsx.vfmin);
+  const vector float vfmax = vec_splats(quantization_params->vsx.vfmax);
+  const vector float vfmagic = vec_splats(quantization_params->vsx.vfmagic);
+  const vector int vimagic = vec_splats(quantization_params->vsx.vimagic);
+
+  const vector unsigned char vzero = {
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  /* note: goes up to 15 elements over bound */
   int32_t* acc = buffer;
-  for (size_t k = 0; k < n; k += 8) {
-    const __m128i vi0 = _mm_loadl_epi64((const __m128i*)i0);
-    i0 += 8;
-    const __m128i vi1 = _mm_loadl_epi64((const __m128i*)i1);
-    i1 += 8;
-    const __m128i vi2 = _mm_loadl_epi64((const __m128i*)i2);
-    i2 += 8;
-    const __m128i vi3 = _mm_loadl_epi64((const __m128i*)i3);
-    i3 += 8;
-    const __m128i vi4 = _mm_loadl_epi64((const __m128i*)i4);
-    i4 += 8;
-    const __m128i vi5 = _mm_loadl_epi64((const __m128i*)i5);
-    i5 += 8;
-    const __m128i vi6 = _mm_loadl_epi64((const __m128i*)i6);
-    i6 += 8;
+  for (size_t k = 0; k < n; k += 16) {
+    const vector unsigned char vi0 = vec_xl(0, i0);
+    i0 += 16;
+    const vector unsigned char vi1 = vec_xl(0, i1);
+    i1 += 16;
+    const vector unsigned char vi2 = vec_xl(0, i2);
+    i2 += 16;
+    const vector unsigned char vi3 = vec_xl(0, i3);
+    i3 += 16;
+    const vector unsigned char vi4 = vec_xl(0, i4);
+    i4 += 16;
+    const vector unsigned char vi5 = vec_xl(0, i5);
+    i5 += 16;
+    const vector unsigned char vi6 = vec_xl(0, i6);
+    i6 += 16;
 
-    const __m128i vxi0 = _mm_unpacklo_epi8(vi0, vzero);
-    const __m128i vxi1 = _mm_unpacklo_epi8(vi1, vzero);
-    const __m128i vxi2 = _mm_unpacklo_epi8(vi2, vzero);
-    const __m128i vxi3 = _mm_unpacklo_epi8(vi3, vzero);
-    const __m128i vxi4 = _mm_unpacklo_epi8(vi4, vzero);
-    const __m128i vxi5 = _mm_unpacklo_epi8(vi5, vzero);
-    const __m128i vxi6 = _mm_unpacklo_epi8(vi6, vzero);
+    const vector short vxi0_hi = (vector short)vec_mergeh(vi0, vzero);
+    const vector short vxi0_lo = (vector short)vec_mergel(vi0, vzero);
+    const vector short vxi1_hi = (vector short)vec_mergeh(vi1, vzero);
+    const vector short vxi1_lo = (vector short)vec_mergel(vi1, vzero);
+    const vector short vxi2_hi = (vector short)vec_mergeh(vi2, vzero);
+    const vector short vxi2_lo = (vector short)vec_mergel(vi2, vzero);
+    const vector short vxi3_hi = (vector short)vec_mergeh(vi3, vzero);
+    const vector short vxi3_lo = (vector short)vec_mergel(vi3, vzero);
+    const vector short vxi4_hi = (vector short)vec_mergeh(vi4, vzero);
+    const vector short vxi4_lo = (vector short)vec_mergel(vi4, vzero);
+    const vector short vxi5_hi = (vector short)vec_mergeh(vi5, vzero);
+    const vector short vxi5_lo = (vector short)vec_mergel(vi5, vzero);
+    const vector short vxi6_hi = (vector short)vec_mergeh(vi6, vzero);
+    const vector short vxi6_lo = (vector short)vec_mergel(vi6, vzero);
 
-    __m128i vacc_lo = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vxi0, vzero));
-    __m128i vacc_hi = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vxi0, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi1, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi1, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi2, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi2, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi3, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi3, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi4, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi4, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi5, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi5, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi6, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi6, vzero));
+    vector int vacc_hi_hi = vec_add(vbias, vec_unpackh(vxi0_hi));
+    vector int vacc_hi_lo = vec_add(vbias, vec_unpackl(vxi0_hi));
+    vector int vacc_lo_hi = vec_add(vbias, vec_unpackh(vxi0_lo));
+    vector int vacc_lo_lo = vec_add(vbias, vec_unpackl(vxi0_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi1_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi1_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi1_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi1_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi2_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi2_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi2_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi2_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi3_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi3_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi3_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi3_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi4_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi4_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi4_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi4_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi5_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi5_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi5_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi5_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi6_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi6_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi6_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi6_lo));
 
-    _mm_store_si128((__m128i*)acc, vacc_lo);
-    _mm_store_si128((__m128i*)acc + 1, vacc_hi);
-    acc += 8;
+    vec_xst(vacc_hi_hi, 0, acc);
+    vec_xst(vacc_hi_lo, 16, acc);
+    vec_xst(vacc_lo_hi, 32, acc);
+    vec_xst(vacc_lo_lo, 48, acc);
+    acc += 16;
   }
+
   for (m -= 7; m > 7; m -= 7) {
     acc = buffer;
     i0 = (const uint8_t*)((uintptr_t)i0 + input_increment);
@@ -94,54 +124,79 @@ void pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx(
     i5 = (const uint8_t*)((uintptr_t)i5 + input_increment);
     i6 = (const uint8_t*)((uintptr_t)i6 + input_increment);
 
-    for (size_t k = 0; k < n; k += 8) {
-      const __m128i vi0 = _mm_loadl_epi64((const __m128i*)i0);
-      i0 += 8;
-      const __m128i vi1 = _mm_loadl_epi64((const __m128i*)i1);
-      i1 += 8;
-      const __m128i vi2 = _mm_loadl_epi64((const __m128i*)i2);
-      i2 += 8;
-      const __m128i vi3 = _mm_loadl_epi64((const __m128i*)i3);
-      i3 += 8;
-      const __m128i vi4 = _mm_loadl_epi64((const __m128i*)i4);
-      i4 += 8;
-      const __m128i vi5 = _mm_loadl_epi64((const __m128i*)i5);
-      i5 += 8;
-      const __m128i vi6 = _mm_loadl_epi64((const __m128i*)i6);
-      i6 += 8;
-      __m128i vacc_lo = _mm_load_si128((const __m128i*)acc);
-      __m128i vacc_hi = _mm_load_si128((const __m128i*)acc + 1);
+    /* note: goes up to 15 elements over bound */
+    for (size_t k = 0; k < n; k += 16) {
+      const vector unsigned char vi0 = vec_xl(0, i0);
+      i0 += 16;
+      const vector unsigned char vi1 = vec_xl(0, i1);
+      i1 += 16;
+      const vector unsigned char vi2 = vec_xl(0, i2);
+      i2 += 16;
+      const vector unsigned char vi3 = vec_xl(0, i3);
+      i3 += 16;
+      const vector unsigned char vi4 = vec_xl(0, i4);
+      i4 += 16;
+      const vector unsigned char vi5 = vec_xl(0, i5);
+      i5 += 16;
+      const vector unsigned char vi6 = vec_xl(0, i6);
+      i6 += 16;
 
-      const __m128i vxi0 = _mm_unpacklo_epi8(vi0, vzero);
-      const __m128i vxi1 = _mm_unpacklo_epi8(vi1, vzero);
-      const __m128i vxi2 = _mm_unpacklo_epi8(vi2, vzero);
-      const __m128i vxi3 = _mm_unpacklo_epi8(vi3, vzero);
-      const __m128i vxi4 = _mm_unpacklo_epi8(vi4, vzero);
-      const __m128i vxi5 = _mm_unpacklo_epi8(vi5, vzero);
-      const __m128i vxi6 = _mm_unpacklo_epi8(vi6, vzero);
+      vector int vacc_hi_hi = vec_xl(0, acc);
+      vector int vacc_hi_lo = vec_xl(16, acc);
+      vector int vacc_lo_hi = vec_xl(32, acc);
+      vector int vacc_lo_lo = vec_xl(48, acc);
 
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi0, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi0, vzero));
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi1, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi1, vzero));
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi2, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi2, vzero));
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi3, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi3, vzero));
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi4, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi4, vzero));
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi5, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi5, vzero));
-      vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi6, vzero));
-      vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi6, vzero));
+      const vector short vxi0_hi = (vector short)vec_mergeh(vi0, vzero);
+      const vector short vxi0_lo = (vector short)vec_mergel(vi0, vzero);
+      const vector short vxi1_hi = (vector short)vec_mergeh(vi1, vzero);
+      const vector short vxi1_lo = (vector short)vec_mergel(vi1, vzero);
+      const vector short vxi2_hi = (vector short)vec_mergeh(vi2, vzero);
+      const vector short vxi2_lo = (vector short)vec_mergel(vi2, vzero);
+      const vector short vxi3_hi = (vector short)vec_mergeh(vi3, vzero);
+      const vector short vxi3_lo = (vector short)vec_mergel(vi3, vzero);
+      const vector short vxi4_hi = (vector short)vec_mergeh(vi4, vzero);
+      const vector short vxi4_lo = (vector short)vec_mergel(vi4, vzero);
+      const vector short vxi5_hi = (vector short)vec_mergeh(vi5, vzero);
+      const vector short vxi5_lo = (vector short)vec_mergel(vi5, vzero);
+      const vector short vxi6_hi = (vector short)vec_mergeh(vi6, vzero);
+      const vector short vxi6_lo = (vector short)vec_mergel(vi6, vzero);
 
-      _mm_store_si128((__m128i*)acc, vacc_lo);
-      _mm_store_si128((__m128i*)acc + 1, vacc_hi);
-      acc += 8;
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi0_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi0_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi0_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi0_lo));
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi1_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi1_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi1_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi1_lo));
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi2_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi2_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi2_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi2_lo));
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi3_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi3_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi3_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi3_lo));
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi4_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi4_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi4_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi4_lo));
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi5_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi5_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi5_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi5_lo));
+      vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi6_hi));
+      vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi6_hi));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi6_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi6_lo));
+
+      vec_xst(vacc_hi_hi, 0, acc);
+      vec_xst(vacc_hi_lo, 16, acc);
+      vec_xst(vacc_lo_hi, 32, acc);
+      vec_xst(vacc_lo_lo, 48, acc);
+      acc += 16;
     }
   }
-
-  const __m128 vscale = _mm_loadu_ps(quantization_params->sse2.scale);
 
   i0 = (const uint8_t*)((uintptr_t)i0 + input_increment);
   i1 = (const uint8_t*)((uintptr_t)i1 + input_increment);
@@ -171,73 +226,97 @@ void pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx(
 
   acc = buffer;
   do {
-    const __m128i vi0 = _mm_loadl_epi64((const __m128i*)i0);
-    i0 += 8;
-    const __m128i vi1 = _mm_loadl_epi64((const __m128i*)i1);
-    i1 += 8;
-    const __m128i vi2 = _mm_loadl_epi64((const __m128i*)i2);
-    i2 += 8;
-    const __m128i vi3 = _mm_loadl_epi64((const __m128i*)i3);
-    i3 += 8;
-    const __m128i vi4 = _mm_loadl_epi64((const __m128i*)i4);
-    i4 += 8;
-    const __m128i vi5 = _mm_loadl_epi64((const __m128i*)i5);
-    i5 += 8;
-    const __m128i vi6 = _mm_loadl_epi64((const __m128i*)i6);
-    i6 += 8;
-    __m128i vacc_lo = _mm_load_si128((const __m128i*)acc);
-    __m128i vacc_hi = _mm_load_si128((const __m128i*)acc + 1);
-    acc += 8;
+    const vector unsigned char vi0 = vec_xl(0, i0);
+    i0 += 16;
+    const vector unsigned char vi1 = vec_xl(0, i1);
+    i1 += 16;
+    const vector unsigned char vi2 = vec_xl(0, i2);
+    i2 += 16;
+    const vector unsigned char vi3 = vec_xl(0, i3);
+    i3 += 16;
+    const vector unsigned char vi4 = vec_xl(0, i4);
+    i4 += 16;
+    const vector unsigned char vi5 = vec_xl(0, i5);
+    i5 += 16;
+    const vector unsigned char vi6 = vec_xl(0, i6);
+    i6 += 16;
 
-    const __m128i vxi0 = _mm_unpacklo_epi8(vi0, vzero);
-    const __m128i vxi1 = _mm_unpacklo_epi8(vi1, vzero);
-    const __m128i vxi2 = _mm_unpacklo_epi8(vi2, vzero);
-    const __m128i vxi3 = _mm_unpacklo_epi8(vi3, vzero);
-    const __m128i vxi4 = _mm_unpacklo_epi8(vi4, vzero);
-    const __m128i vxi5 = _mm_unpacklo_epi8(vi5, vzero);
-    const __m128i vxi6 = _mm_unpacklo_epi8(vi6, vzero);
+    vector int vacc_hi_hi = vec_xl(0, acc);
+    vector int vacc_hi_lo = vec_xl(16, acc);
+    vector int vacc_lo_hi = vec_xl(32, acc);
+    vector int vacc_lo_lo = vec_xl(48, acc);
+    acc += 16;
 
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi0, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi0, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi1, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi1, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi2, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi2, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi3, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi3, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi4, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi4, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi5, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi5, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi6, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi6, vzero));
+    const vector short vxi0_hi = (vector short)vec_mergeh(vi0, vzero);
+    const vector short vxi0_lo = (vector short)vec_mergel(vi0, vzero);
+    const vector short vxi1_hi = (vector short)vec_mergeh(vi1, vzero);
+    const vector short vxi1_lo = (vector short)vec_mergel(vi1, vzero);
+    const vector short vxi2_hi = (vector short)vec_mergeh(vi2, vzero);
+    const vector short vxi2_lo = (vector short)vec_mergel(vi2, vzero);
+    const vector short vxi3_hi = (vector short)vec_mergeh(vi3, vzero);
+    const vector short vxi3_lo = (vector short)vec_mergel(vi3, vzero);
+    const vector short vxi4_hi = (vector short)vec_mergeh(vi4, vzero);
+    const vector short vxi4_lo = (vector short)vec_mergel(vi4, vzero);
+    const vector short vxi5_hi = (vector short)vec_mergeh(vi5, vzero);
+    const vector short vxi5_lo = (vector short)vec_mergel(vi5, vzero);
+    const vector short vxi6_hi = (vector short)vec_mergeh(vi6, vzero);
+    const vector short vxi6_lo = (vector short)vec_mergel(vi6, vzero);
 
-    const __m128 vacc_lo_f = _mm_mul_ps(_mm_cvtepi32_ps(vacc_lo), vscale);
-    const __m128 vacc_hi_f = _mm_mul_ps(_mm_cvtepi32_ps(vacc_hi), vscale);
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi0_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi0_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi0_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi0_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi1_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi1_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi1_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi1_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi2_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi2_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi2_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi2_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi3_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi3_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi3_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi3_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi4_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi4_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi4_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi4_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi5_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi5_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi5_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi5_lo));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi6_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi6_hi));
+    vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi6_lo));
+    vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi6_lo));
 
-    const __m128i vscaled_lo = _mm_cvtps_epi32(vacc_lo_f);
-    const __m128i vscaled_hi = _mm_cvtps_epi32(vacc_hi_f);
+    vector float vacc_hi_hi_f = vec_mul(vec_float(vacc_hi_hi), vscale);
+    vector float vacc_hi_lo_f = vec_mul(vec_float(vacc_hi_lo), vscale);
+    vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
+    vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
 
-    __m128i vout = _mm_packs_epi32(vscaled_lo, vscaled_hi);
-    vout = _mm_adds_epi16(
-        vout,
-        _mm_load_si128(
-            (const __m128i*)quantization_params->sse2.output_zero_point));
-    vout = _mm_packus_epi16(vout, vout);
-    vout = _mm_min_epu8(
-        vout,
-        _mm_load_si128((const __m128i*)quantization_params->sse2.output_max));
-    vout = _mm_max_epu8(
-        vout,
-        _mm_load_si128((const __m128i*)quantization_params->sse2.output_min));
+    vacc_hi_hi_f = vec_min(vec_max(vacc_hi_hi_f, vfmin), vfmax);
+    vacc_hi_lo_f = vec_min(vec_max(vacc_hi_lo_f, vfmin), vfmax);
+    vacc_lo_hi_f = vec_min(vec_max(vacc_lo_hi_f, vfmin), vfmax);
+    vacc_lo_lo_f = vec_min(vec_max(vacc_lo_lo_f, vfmin), vfmax);
 
-    _mm_storel_epi64((__m128i*)output, vout);
-    output += 8;
+    vacc_hi_hi = vec_sub((vector int)(vec_add(vacc_hi_hi_f, vfmagic)), vimagic);
+    vacc_hi_lo = vec_sub((vector int)(vec_add(vacc_hi_lo_f, vfmagic)), vimagic);
+    vacc_lo_hi = vec_sub((vector int)(vec_add(vacc_lo_hi_f, vfmagic)), vimagic);
+    vacc_lo_lo = vec_sub((vector int)(vec_add(vacc_lo_lo_f, vfmagic)), vimagic);
 
-    n -= 8;
-  } while (n >= 8);
+    const vector short vout_hi = vec_packs(vacc_hi_hi, vacc_hi_lo);
+    const vector short vout_lo = vec_packs(vacc_lo_hi, vacc_lo_lo);
+
+    const vector unsigned char vout = vec_packsu(vout_hi, vout_lo);
+    vec_xst(vout, 0, output);
+    output += 16;
+
+    n -= 16;
+  } while (n >= 16);
   if (n != 0) {
-    const size_t address_decrement = 8 - n;
+    const size_t address_decrement = 16 - n;
     i0 = (const uint8_t*)((uintptr_t)i0 - address_decrement);
     i1 = (const uint8_t*)((uintptr_t)i1 - address_decrement);
     i2 = (const uint8_t*)((uintptr_t)i2 - address_decrement);
@@ -245,80 +324,124 @@ void pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx(
     i4 = (const uint8_t*)((uintptr_t)i4 - address_decrement);
     i5 = (const uint8_t*)((uintptr_t)i5 - address_decrement);
     i6 = (const uint8_t*)((uintptr_t)i6 - address_decrement);
-    const __m128i vi_shift = _mm_cvtsi32_si128(8 * address_decrement);
+    const vector unsigned char vshift = {
+        8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    const __m128i vi0 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i0), vi_shift);
-    const __m128i vi1 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i1), vi_shift);
-    const __m128i vi2 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i2), vi_shift);
-    const __m128i vi3 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i3), vi_shift);
-    const __m128i vi4 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i4), vi_shift);
-    const __m128i vi5 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i5), vi_shift);
-    const __m128i vi6 =
-        _mm_srl_epi64(_mm_loadl_epi64((const __m128i*)i6), vi_shift);
-    __m128i vacc_lo = _mm_load_si128((const __m128i*)acc);
-    __m128i vacc_hi = _mm_load_si128((const __m128i*)acc + 1);
+    const vector unsigned char vi0 = vec_sro(vec_xl(0, i0), vshift);
+    const vector unsigned char vi1 = vec_sro(vec_xl(0, i1), vshift);
+    const vector unsigned char vi2 = vec_sro(vec_xl(0, i2), vshift);
+    const vector unsigned char vi3 = vec_sro(vec_xl(0, i3), vshift);
+    const vector unsigned char vi4 = vec_sro(vec_xl(0, i4), vshift);
+    const vector unsigned char vi5 = vec_sro(vec_xl(0, i5), vshift);
+    const vector unsigned char vi6 = vec_sro(vec_xl(0, i6), vshift);
 
-    const __m128i vxi0 = _mm_unpacklo_epi8(vi0, vzero);
-    const __m128i vxi1 = _mm_unpacklo_epi8(vi1, vzero);
-    const __m128i vxi2 = _mm_unpacklo_epi8(vi2, vzero);
-    const __m128i vxi3 = _mm_unpacklo_epi8(vi3, vzero);
-    const __m128i vxi4 = _mm_unpacklo_epi8(vi4, vzero);
-    const __m128i vxi5 = _mm_unpacklo_epi8(vi5, vzero);
-    const __m128i vxi6 = _mm_unpacklo_epi8(vi6, vzero);
+    vector int vacc_hi_hi = vec_xl(0, acc);
+    vector int vacc_hi_lo = vec_xl(16, acc);
 
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi0, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi0, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi1, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi1, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi2, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi2, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi3, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi3, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi4, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi4, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi5, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi5, vzero));
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi16(vxi6, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi16(vxi6, vzero));
+    const vector short vxi0_hi = (vector short)vec_mergeh(vi0, vzero);
+    const vector short vxi1_hi = (vector short)vec_mergeh(vi1, vzero);
+    const vector short vxi2_hi = (vector short)vec_mergeh(vi2, vzero);
+    const vector short vxi3_hi = (vector short)vec_mergeh(vi3, vzero);
+    const vector short vxi4_hi = (vector short)vec_mergeh(vi4, vzero);
+    const vector short vxi5_hi = (vector short)vec_mergeh(vi5, vzero);
+    const vector short vxi6_hi = (vector short)vec_mergeh(vi6, vzero);
 
-    const __m128 vacc_lo_f = _mm_mul_ps(_mm_cvtepi32_ps(vacc_lo), vscale);
-    const __m128 vacc_hi_f = _mm_mul_ps(_mm_cvtepi32_ps(vacc_hi), vscale);
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi0_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi0_hi));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi1_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi1_hi));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi2_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi2_hi));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi3_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi3_hi));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi4_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi4_hi));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi5_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi5_hi));
+    vacc_hi_hi = vec_add(vacc_hi_hi, vec_unpackh(vxi6_hi));
+    vacc_hi_lo = vec_add(vacc_hi_lo, vec_unpackl(vxi6_hi));
 
-    const __m128i vscaled_lo = _mm_cvtps_epi32(vacc_lo_f);
-    const __m128i vscaled_hi = _mm_cvtps_epi32(vacc_hi_f);
+    vector float vacc_hi_hi_f = vec_mul(vec_float(vacc_hi_hi), vscale);
+    vector float vacc_hi_lo_f = vec_mul(vec_float(vacc_hi_lo), vscale);
 
-    __m128i vout = _mm_packs_epi32(vscaled_lo, vscaled_hi);
-    vout = _mm_adds_epi16(
-        vout,
-        _mm_load_si128(
-            (const __m128i*)quantization_params->sse2.output_zero_point));
-    vout = _mm_packus_epi16(vout, vout);
-    vout = _mm_min_epu8(
-        vout,
-        _mm_load_si128((const __m128i*)quantization_params->sse2.output_max));
-    vout = _mm_max_epu8(
-        vout,
-        _mm_load_si128((const __m128i*)quantization_params->sse2.output_min));
+    vacc_hi_hi_f = vec_min(vec_max(vacc_hi_hi_f, vfmin), vfmax);
+    vacc_hi_lo_f = vec_min(vec_max(vacc_hi_lo_f, vfmin), vfmax);
 
+    vacc_hi_hi = vec_sub((vector int)(vec_add(vacc_hi_hi_f, vfmagic)), vimagic);
+    vacc_hi_lo = vec_sub((vector int)(vec_add(vacc_hi_lo_f, vfmagic)), vimagic);
+
+    const vector short vout_hi = vec_packs(vacc_hi_hi, vacc_hi_lo);
+
+    vector unsigned char vout;
+    if (n > 8) {
+      const vector short vxi0_lo = (vector short)vec_mergel(vi0, vzero);
+      const vector short vxi1_lo = (vector short)vec_mergel(vi1, vzero);
+      const vector short vxi2_lo = (vector short)vec_mergel(vi2, vzero);
+      const vector short vxi3_lo = (vector short)vec_mergel(vi3, vzero);
+      const vector short vxi4_lo = (vector short)vec_mergel(vi4, vzero);
+      const vector short vxi5_lo = (vector short)vec_mergel(vi5, vzero);
+      const vector short vxi6_lo = (vector short)vec_mergel(vi6, vzero);
+
+      vector int vacc_lo_hi = vec_xl(32, acc);
+      vector int vacc_lo_lo = vec_xl(48, acc);
+
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi0_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi0_lo));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi1_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi1_lo));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi2_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi2_lo));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi3_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi3_lo));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi4_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi4_lo));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi5_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi5_lo));
+      vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vxi6_lo));
+      vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vxi6_lo));
+
+      vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
+      vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
+
+      vacc_lo_hi_f = vec_min(vec_max(vacc_lo_hi_f, vfmin), vfmax);
+      vacc_lo_lo_f = vec_min(vec_max(vacc_lo_lo_f, vfmin), vfmax);
+
+      vacc_lo_hi =
+          vec_sub((vector int)(vec_add(vacc_lo_hi_f, vfmagic)), vimagic);
+      vacc_lo_lo =
+          vec_sub((vector int)(vec_add(vacc_lo_lo_f, vfmagic)), vimagic);
+
+      const vector short vout_lo = vec_packs(vacc_lo_hi, vacc_lo_lo);
+
+      vout = vec_packsu(vout_hi, vout_lo);
+    } else {
+      vout = vec_packsu(vout_hi, vout_hi);
+    }
+
+    if (n & 8) {
+      *(uint64_t *)output = ((vector unsigned long long)vout)[0];
+      output += 8;
+      const vector unsigned char vshift2 = {
+        8 * 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      vout = vec_sro(vout, vshift2);
+    }
     if (n & 4) {
-      *((uint32_t*)output) = (uint32_t)_mm_cvtsi128_si32(vout);
+      *(uint32_t *)output = ((vector unsigned int)vout)[0];
       output += 4;
-      vout = _mm_srli_epi64(vout, 32);
+      const vector unsigned char vshift2 = {
+        8 * 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      vout = vec_sro(vout, vshift2);
     }
     if (n & 2) {
-      *((uint16_t*)output) = (uint16_t)_mm_extract_epi16(vout, 0);
+      *(uint16_t *)output = ((vector unsigned short)vout)[0];
       output += 2;
-      vout = _mm_srli_epi32(vout, 16);
+      const vector unsigned char vshift2 = {
+        8 * 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      vout = vec_sro(vout, vshift2);
     }
     if (n & 1) {
-      *((uint8_t*)output) = (uint8_t)_mm_cvtsi128_si32(vout);
+      output[0] = vout[0];
+      output += 1;
     }
   }
-  */
 }
