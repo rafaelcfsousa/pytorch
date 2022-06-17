@@ -108,7 +108,7 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
     const vector short vout_hi = vec_packs(vacc_hi_hi, vacc_hi_lo);
 
     vector unsigned char vout;
-    if (kc >= 8) {
+    if (kc > 8) {
       vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
       vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
       vacc_lo_hi_f = vec_min(vec_max(vacc_lo_hi_f, vfmin), vfmax);

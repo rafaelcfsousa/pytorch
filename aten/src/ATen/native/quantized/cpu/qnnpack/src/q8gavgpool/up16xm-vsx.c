@@ -81,14 +81,14 @@ void pytorch_q8gavgpool_ukernel_up16xm__vsx(
       vacc_lo_lo = vec_add(
           vacc_lo_lo, (vector int)vec_mergel(vxi_lo, (vector short)vzero));
     }
-    input += input_stride;
-
     // Compute the higher part of the vector register vinput
     const vector short vxi_hi = (vector short)vec_mergeh(vinput, vzero);
     vacc_hi_hi = vec_add(
         vacc_hi_hi, (vector int)vec_mergeh(vxi_hi, (vector short)vzero));
     vacc_hi_lo = vec_add(
         vacc_hi_lo, (vector int)vec_mergel(vxi_hi, (vector short)vzero));
+
+    input += input_stride;
   }
 
   vector float vacc_hi_hi_f = vec_mul(vec_float(vacc_hi_hi), vscale);
@@ -100,7 +100,7 @@ void pytorch_q8gavgpool_ukernel_up16xm__vsx(
   const vector short vout_hi = vec_packs(vacc_hi_hi, vacc_hi_lo);
 
   vector unsigned char vout;
-  if (n >= 8) {
+  if (n > 8) {
     vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
     vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
     vacc_lo_hi_f = vec_min(vec_max(vacc_lo_hi_f, vfmin), vfmax);
