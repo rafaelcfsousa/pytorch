@@ -338,6 +338,13 @@ static void init(void) {
   pytorch_qnnp_params.u8lut32norm = pytorch_u8lut32norm_ukernel__scalar;
   pytorch_qnnp_params.x8lut = pytorch_x8lut_ukernel__scalar;
 #elif CPUINFO_ARCH_PPC64
+  pytorch_qnnp_params.q8gavgpool = (struct pytorch_q8gavgpool_parameters){
+      .ltnr = pytorch_q8gavgpool_ukernel_up16xm__vsx,
+      .genr_lemr = pytorch_q8gavgpool_ukernel_up16x7__vsx,
+      .genr_gtmr = pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx,
+      .mr = 7,
+      .nr = 16,
+  };
   pytorch_qnnp_params.q8avgpool = (struct pytorch_q8avgpool_parameters){
       .ltkr = pytorch_q8avgpool_ukernel_up16xm__vsx,
       .gekr_lemr = pytorch_q8avgpool_ukernel_up16x9__vsx,
