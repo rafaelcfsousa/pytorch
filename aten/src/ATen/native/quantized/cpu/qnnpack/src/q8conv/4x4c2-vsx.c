@@ -251,7 +251,7 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       const vector unsigned char va_shift = {
           8 * a_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-      // TODO(Rafael): Check if the accesses here are accessing valid memory
+      /* note: goes up to 15 elements over bound */
       const vector unsigned char va0 =
           vec_sro(vec_xl(-a_predecrement, a0), va_shift);
       const vector short vxa0_hi =
@@ -321,7 +321,7 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
         vacc3x0123 = vec_msum(vxa3_hi_23, vxb1, vacc3x0123);
       }
 
-      // Should be within the previous if stmt
+      /* note: should be within the previous if to avoid unnecessary branches */
       if (k > 4) {
         w = (const void*)((uintptr_t)w + 8);
         const vector unsigned char vb2 =
