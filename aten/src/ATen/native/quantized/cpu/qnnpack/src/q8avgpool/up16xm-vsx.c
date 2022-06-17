@@ -36,13 +36,10 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
 
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
   const vector unsigned char mask_shift_2bytes = {
       16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
   const vector unsigned char mask_shift_4bytes = {
       32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
   const vector unsigned char mask_shift_8bytes = {
       64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -85,7 +82,7 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
         vi = (vector unsigned char)vec_insert(
             *(uint64_t *)i, (vector unsigned long long)vi, 0);
 
-        // Compute the lower part of the register vi
+        // Compute the lower part of the vector register vi
         const vector short vxi_lo = (vector short)vec_mergel(vi, vzero);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, (vector int)vec_mergeh(vxi_lo, (vector short)vzero));
@@ -93,7 +90,7 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
             vacc_lo_lo, (vector int)vec_mergel(vxi_lo, (vector short)vzero));
       }
 
-      // Compute the higher part of the register vi
+      // Compute the higher part of the vector register vi
       const vector short vxi_hi = (vector short)vec_mergeh(vi, vzero);
       vacc_hi_hi = vec_add(
           vacc_hi_hi, (vector int)vec_mergeh(vxi_hi, (vector short)vzero));

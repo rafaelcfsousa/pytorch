@@ -21,82 +21,114 @@ void pytorch_q8gavgpool_ukernel_up16xm__vsx(
     uint8_t* output,
     const union pytorch_qnnp_avgpool_quantization_params
         quantization_params[RESTRICT_STATIC 1]) {
-  printf("pytorch_q8gavgpool_ukernel_up16xm__vsx m=%d n=%d\n", m, n);
-  /*
   assert(m >= 1);
-  assert(n < 8);
+  assert(n < 16);
 
-  const __m128i vbias =
-      _mm_loadu_si128((const __m128i*)&quantization_params->sse2.bias);
-  __m128i vacc_lo = vbias;
-  __m128i vacc_hi = vbias;
-  __m128i vzero = _mm_setzero_si128();
-  while (m >= 8) {
-    const __m128i vinput = _mm_loadl_epi64((const __m128i*)input);
-    const __m128i vxinput = _mm_unpacklo_epi8(vinput, vzero);
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi8(vxinput, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi8(vxinput, vzero));
+  const vector int vbias = vec_splats(quantization_params->vsx.bias);
+  const vector float vscale = vec_splats(quantization_params->vsx.scale);
+  const vector float vfmin = vec_splats(quantization_params->vsx.vfmin);
+  const vector float vfmax = vec_splats(quantization_params->vsx.vfmax);
+  const vector float vfmagic = vec_splats(quantization_params->vsx.vfmagic);
+  const vector int vimagic = vec_splats(quantization_params->vsx.vimagic);
 
-    input += input_stride;
-    m--;
+  const vector unsigned char vzero = {
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  const vector unsigned char mask_shift_2bytes = {
+      16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  const vector unsigned char mask_shift_4bytes = {
+      32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  const vector unsigned char mask_shift_8bytes = {
+      64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  vector int vacc_hi_hi = vbias;
+  vector int vacc_hi_lo = vbias;
+  vector int vacc_lo_hi, vacc_lo_lo;
+  if (n >= 8) {
+    vacc_lo_hi = vbias;
+    vacc_lo_lo = vbias;
   }
+
   while (m-- != 0) {
     input += n;
-    __m128i vinput = _mm_setzero_si128();
+    vector unsigned char vinput = {
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (n & 1) {
       input -= 1;
-      vinput = _mm_cvtsi32_si128((int)(uint32_t)*input);
+      vinput = vec_insert(*input, vinput, 0);
     }
     if (n & 2) {
-      vinput = _mm_slli_epi32(vinput, 16);
       input -= 2;
-      vinput = _mm_insert_epi16(vinput, *((const uint16_t*)input), 0);
+      vinput = vec_slo(vinput, mask_shift_2bytes);
+      vinput = (vector unsigned char)vec_insert(
+          *(uint16_t*)input, (vector unsigned short)vinput, 0);
     }
     if (n & 4) {
       input -= 4;
-      vinput = _mm_unpacklo_epi32(
-          _mm_cvtsi32_si128((int)*((const uint32_t*)input)), vinput);
+      vinput = vec_slo(vinput, mask_shift_4bytes);
+      vinput = (vector unsigned char)vec_insert(
+          *(uint32_t*)input, (vector unsigned int)vinput, 0);
+    }
+    if (n & 8) {
+      input -= 8;
+      vinput = vec_slo(vinput, mask_shift_8bytes);
+      vinput = (vector unsigned char)vec_insert(
+          *(uint64_t*)input, (vector unsigned long long)vinput, 0);
+
+      // Compute the lower part of the vector register vinput
+      const vector short vxi_lo = (vector short)vec_mergel(vinput, vzero);
+      vacc_lo_hi = vec_add(
+          vacc_lo_hi, (vector int)vec_mergeh(vxi_lo, (vector short)vzero));
+      vacc_lo_lo = vec_add(
+          vacc_lo_lo, (vector int)vec_mergel(vxi_lo, (vector short)vzero));
     }
     input += input_stride;
 
-    const __m128i vxinput = _mm_unpacklo_epi8(vinput, vzero);
-    vacc_lo = _mm_add_epi32(vacc_lo, _mm_unpacklo_epi8(vxinput, vzero));
-    vacc_hi = _mm_add_epi32(vacc_hi, _mm_unpackhi_epi8(vxinput, vzero));
+    // Compute the higher part of the vector register vinput
+    const vector short vxi_hi = (vector short)vec_mergeh(vinput, vzero);
+    vacc_hi_hi = vec_add(
+        vacc_hi_hi, (vector int)vec_mergeh(vxi_hi, (vector short)vzero));
+    vacc_hi_lo = vec_add(
+        vacc_hi_lo, (vector int)vec_mergel(vxi_hi, (vector short)vzero));
   }
 
-  const __m128 vscale = _mm_loadu_ps(quantization_params->sse2.scale);
+  vector float vacc_hi_hi_f = vec_mul(vec_float(vacc_hi_hi), vscale);
+  vector float vacc_hi_lo_f = vec_mul(vec_float(vacc_hi_lo), vscale);
+  vacc_hi_hi_f = vec_min(vec_max(vacc_hi_hi_f, vfmin), vfmax);
+  vacc_hi_lo_f = vec_min(vec_max(vacc_hi_lo_f, vfmin), vfmax);
+  vacc_hi_hi = vec_sub((vector int)(vec_add(vacc_hi_hi_f, vfmagic)), vimagic);
+  vacc_hi_lo = vec_sub((vector int)(vec_add(vacc_hi_lo_f, vfmagic)), vimagic);
+  const vector short vout_hi = vec_packs(vacc_hi_hi, vacc_hi_lo);
 
-  const __m128 vacc_lo_f = _mm_mul_ps(_mm_cvtepi32_ps(vacc_lo), vscale);
-  const __m128 vacc_hi_f = _mm_mul_ps(_mm_cvtepi32_ps(vacc_hi), vscale);
+  vector unsigned char vout;
+  if (n >= 8) {
+    vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
+    vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
+    vacc_lo_hi_f = vec_min(vec_max(vacc_lo_hi_f, vfmin), vfmax);
+    vacc_lo_lo_f = vec_min(vec_max(vacc_lo_lo_f, vfmin), vfmax);
+    vacc_lo_hi = vec_sub((vector int)(vec_add(vacc_lo_hi_f, vfmagic)), vimagic);
+    vacc_lo_lo = vec_sub((vector int)(vec_add(vacc_lo_lo_f, vfmagic)), vimagic);
+    const vector short vout_lo = vec_packs(vacc_lo_hi, vacc_lo_lo);
+    vout = vec_packsu(vout_hi, vout_lo);
+  } else {
+    vout = vec_packsu(vout_hi, vout_hi);
+  }
 
-  const __m128i vscaled_lo = _mm_cvtps_epi32(vacc_lo_f);
-  const __m128i vscaled_hi = _mm_cvtps_epi32(vacc_hi_f);
-
-  __m128i vout = _mm_packs_epi32(vscaled_lo, vscaled_hi);
-  vout = _mm_adds_epi16(
-      vout,
-      _mm_load_si128(
-          (const __m128i*)quantization_params->sse2.output_zero_point));
-  vout = _mm_packus_epi16(vout, vout);
-  vout = _mm_min_epu8(
-      vout,
-      _mm_load_si128((const __m128i*)quantization_params->sse2.output_max));
-  vout = _mm_max_epu8(
-      vout,
-      _mm_load_si128((const __m128i*)quantization_params->sse2.output_min));
-
+  if (n & 8) {
+    *((uint64_t*)output) = ((vector unsigned long long)vout)[0];
+    vout = vec_sro(vout, mask_shift_8bytes);
+    output += 8;
+  }
   if (n & 4) {
-    *((uint32_t*)output) = (uint32_t)_mm_cvtsi128_si32(vout);
+    *((uint32_t*)output) = ((vector unsigned int)vout)[0];
+    vout = vec_sro(vout, mask_shift_4bytes);
     output += 4;
-    vout = _mm_srli_epi64(vout, 32);
   }
   if (n & 2) {
-    *((uint16_t*)output) = (uint16_t)_mm_extract_epi16(vout, 0);
+    *((uint16_t*)output) = ((vector unsigned short)vout)[0];
+    vout = vec_sro(vout, mask_shift_2bytes);
     output += 2;
-    vout = _mm_srli_epi32(vout, 16);
   }
   if (n & 1) {
-    *((uint8_t*)output) = (uint8_t)_mm_cvtsi128_si32(vout);
+    output[0] = vout[0];
   }
-  */
 }
