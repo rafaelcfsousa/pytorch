@@ -299,6 +299,9 @@ pytorch_qnnp_compute_u8_clamping_params(
 #elif CPUINFO_ARCH_ARM || CPUINFO_ARCH_ARM64
   params.neon.output_max = output_max;
   params.neon.output_min = output_min;
+#elif CPUINFO_ARCH_PPC64
+  params.vsx.output_max = output_max;
+  params.vsx.output_min = output_min;
 #else
   params.scalar.output_min = (int32_t)(uint32_t)output_min;
   params.scalar.output_max = (int32_t)(uint32_t)output_max;

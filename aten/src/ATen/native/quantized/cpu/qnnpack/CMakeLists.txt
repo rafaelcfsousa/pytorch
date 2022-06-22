@@ -273,6 +273,8 @@ set(PYTORCH_QNNPACK_PPC64LE_VSX_UKERNELS
   src/q8gavgpool/mp16x7p7q-vsx.c
   src/q8gavgpool/up16x7-vsx.c
   src/q8gavgpool/up16xm-vsx.c
+  src/u8maxpool/16x9p8q-vsx.c
+  src/u8maxpool/sub16-vsx.c
   src/q8conv/4x4c2-vsx.c
   src/q8gemm/4x4c2-dq-vsx.c
   src/q8gemm/4x4c2-vsx.c)
@@ -320,6 +322,9 @@ if(PYTORCH_QNNPACK_TARGET_PROCESSOR MATCHES "^(aarch64|arm64)$" OR IOS_ARCH MATC
 endif()
 if(PYTORCH_QNNPACK_TARGET_PROCESSOR MATCHES "^(i[3-6]86|x86_64)$" OR IOS_ARCH MATCHES "^(i386|x86_64)$")
   set_property(SOURCE ${PYTORCH_QNNPACK_X86_SSE2_UKERNELS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O2 -msse2 ")
+endif()
+if(PYTORCH_QNNPACK_TARGET_PROCESSOR MATCHES "^ppc64le$")
+  set_property(SOURCE ${PYTORCH_QNNPACK_PPC64LE_VSX_UKERNELS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O2 -mvsx ")
 endif()
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[5-8]" OR IOS_ARCH MATCHES "^armv7")
   set_property(SOURCE ${PYTORCH_QNNPACK_PSIMD_UKERNELS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O2 -marm -mfpu=neon ")

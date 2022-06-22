@@ -361,6 +361,15 @@ static void init(void) {
       .nr = 4,
       .kr = 2,
   };
+  pytorch_qnnp_params.u8maxpool = (struct pytorch_u8maxpool_parameters){
+      .ltkr = pytorch_u8maxpool_ukernel_sub16__vsx,
+      .gekr = pytorch_u8maxpool_ukernel_16x9p8q__vsx,
+      .mr = 9,
+      .qr = 8,
+      .kr = 16,
+  };
+  pytorch_qnnp_params.u8lut32norm = pytorch_u8lut32norm_ukernel__scalar;
+  pytorch_qnnp_params.x8lut = pytorch_x8lut_ukernel__scalar;
 #else
 #error "Unsupported architecture"
 #endif

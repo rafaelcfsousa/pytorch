@@ -291,6 +291,12 @@ union pytorch_qnnp_u8_clamping_params {
     PYTORCH_QNNP_ALIGN(16) uint8_t output_min[16];
   } sse2;
 #endif /* CPUINFO_ARCH_X86 || CPUINFO_ARCH_X86_64 */
+#if CPUINFO_ARCH_PPC64
+  struct {
+    uint8_t output_max;
+    uint8_t output_min;
+  } vsx;
+#endif /* CPUINFO_ARCH_PPC64 */
 };
 
 typedef void (*pytorch_q8gemm_ukernel_function)(
