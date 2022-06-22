@@ -1169,7 +1169,7 @@ TEST(Q8GAVGPOOL_UP16x7__VSX, n_eq_16_few_m) {
 
 TEST(Q8GAVGPOOL_UP16x7__VSX, n_eq_16_all_m_with_x_stride) {
   TEST_REQUIRES_VSX;
-  GAvgPoolMicrokernelTester().m(7).n(16).xStride(11).test(
+  GAvgPoolMicrokernelTester().m(7).n(16).xStride(17).test(
       pytorch_q8gavgpool_ukernel_up16x7__vsx);
 }
 
@@ -1463,7 +1463,7 @@ TEST(Q8GAVGPOOL_MP16x7p7q__VSX, n_eq_16_2pass_all_m) {
 
 TEST(Q8GAVGPOOL_MP16x7p7q__VSX, n_eq_16_2pass_all_m_with_x_stride) {
   TEST_REQUIRES_VSX;
-  GAvgPoolMicrokernelTester().m(14).n(16).nr(16).xStride(11).test(
+  GAvgPoolMicrokernelTester().m(14).n(16).nr(16).xStride(17).test(
       pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx);
 }
 
@@ -1546,7 +1546,7 @@ TEST(Q8GAVGPOOL_MP16x7p7q__VSX, n_eq_16_2pass_few_m) {
 TEST(Q8GAVGPOOL_MP16x7p7q__VSX, n_eq_16_2pass_few_m_with_x_stride) {
   TEST_REQUIRES_VSX;
   for (size_t m = 1; m < 7; m++) {
-    GAvgPoolMicrokernelTester().m(7 + m).n(16).nr(16).xStride(9).test(
+    GAvgPoolMicrokernelTester().m(7 + m).n(16).nr(16).xStride(17).test(
         pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx);
   }
 }
@@ -1599,7 +1599,7 @@ TEST(Q8GAVGPOOL_MP16x7p7q__VSX, n_div_16_multipass_all_m_with_x_stride) {
   TEST_REQUIRES_VSX;
   for (size_t n = 16; n < 256; n += 24) {
     for (size_t m = 14; m <= 35; m += 7) {
-      GAvgPoolMicrokernelTester().m(m).n(n).nr(16).nr(16).xStride(131).test(
+      GAvgPoolMicrokernelTester().m(m).n(n).nr(16).nr(16).xStride(257).test(
           pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx);
     }
   }
@@ -1717,7 +1717,7 @@ TEST(Q8GAVGPOOL_MP16x7p7q__VSX, n_gt_16_multipass_all_m_with_x_stride) {
   TEST_REQUIRES_VSX;
   for (size_t n = 16; n < 32; n++) {
     for (size_t m = 14; m <= 35; m += 7) {
-      GAvgPoolMicrokernelTester().m(m).n(n).nr(16).xStride(23).test(
+      GAvgPoolMicrokernelTester().m(m).n(n).nr(16).xStride(32).test(
           pytorch_q8gavgpool_ukernel_mp16x7p7q__vsx);
     }
   }

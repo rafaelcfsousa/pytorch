@@ -266,10 +266,9 @@ union pytorch_qnnp_avgpool_quantization_params {
   struct {
     int32_t bias;
     float scale;
-    float vfmax;
-    float vfmin;
-    float vfmagic;
-    int32_t vimagic;
+    int16_t output_zero_point;
+    uint8_t output_max;
+    uint8_t output_min;
   } vsx;
 #endif
 };

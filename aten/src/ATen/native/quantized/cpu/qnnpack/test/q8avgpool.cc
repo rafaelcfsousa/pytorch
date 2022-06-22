@@ -2073,7 +2073,7 @@ TEST(Q8AVGPOOL_UP16x9__VSX, kc_gt_16_fulltile_with_x_stride) {
     for (size_t kw = 1; kw <= tester.mr(); kw++) {
       if (kh * kw == tester.mr()) {
         for (size_t kc = 17; kc < 31; kc++) {
-          tester.kh(kh).kw(kw).kc(kc).xStride(23).test(
+          tester.kh(kh).kw(kw).kc(kc).xStride(32).test(
               pytorch_q8avgpool_ukernel_up16x9__vsx);
         }
       }
@@ -2227,7 +2227,7 @@ TEST(Q8AVGPOOL_UP16x9__VSX, small_n_with_x_stride) {
             .kh(ks)
             .kw(ks)
             .kc(kc)
-            .xStride(29)
+            .xStride(39)
             .test(pytorch_q8avgpool_ukernel_up16x9__vsx);
       }
     }
@@ -2461,7 +2461,7 @@ TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_x_stride) {
             .kh(ks)
             .kw(ks)
             .kc(kc)
-            .xStride(11)
+            .xStride(19)
             .iterations(3)
             .test(pytorch_q8avgpool_ukernel_up16xm__vsx);
       }
@@ -2673,7 +2673,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile_with_x_stride) {
     for (size_t kw = 1; kw <= ks; kw++) {
       if (kh * kw == ks) {
         for (size_t kc = 16; kc < 32; kc++) {
-          tester.kh(kh).kw(kw).kc(kc).xStride(23).test(
+          tester.kh(kh).kw(kw).kc(kc).xStride(33).test(
               pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
         }
       }
@@ -2718,7 +2718,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile_with_x_stride) {
       for (size_t kw = 1; kw <= ks; kw++) {
         if (kh * kw == ks) {
           for (size_t kc = 16; kc < 32; kc++) {
-            tester.kh(kh).kw(kw).kc(kc).xStride(23).test(
+            tester.kh(kh).kw(kw).kc(kc).xStride(33).test(
                 pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
           }
         }
@@ -2889,7 +2889,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_x_stride) {
             .kh(ks)
             .kw(ks)
             .kc(kc)
-            .xStride(29)
+            .xStride(37)
             .test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
       }
     }

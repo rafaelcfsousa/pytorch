@@ -247,13 +247,9 @@ pytorch_qnnp_compute_avgpool_quantization_params(
 #elif CPUINFO_ARCH_PPC64
   params.vsx.bias = bias;
   params.vsx.scale = scale;
-  params.vsx.vfmin = ((float)((int32_t)(uint32_t)output_min -
-      (int32_t)(uint32_t)output_zero_point));
-  params.vsx.vfmax = ((float)((int32_t)(uint32_t)output_max -
-      (int32_t)(uint32_t)output_zero_point));
-  params.vsx.vfmagic = 12582912.0f;
-  params.vsx.vimagic = (INT32_C(0x4B400000) -
-      (int32_t)(uint32_t)output_zero_point);
+  params.vsx.output_zero_point = (int16_t)(uint16_t)output_zero_point;
+  params.vsx.output_max = output_max;
+  params.vsx.output_min = output_min;
 #else
   params.scalar.bias = bias;
   params.scalar.scale = scale;

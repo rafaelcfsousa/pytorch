@@ -29,10 +29,12 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
 
   const vector int vbias = vec_splats(quantization_params->vsx.bias);
   const vector float vscale = vec_splats(quantization_params->vsx.scale);
-  const vector float vfmin = vec_splats(quantization_params->vsx.vfmin);
-  const vector float vfmax = vec_splats(quantization_params->vsx.vfmax);
-  const vector float vfmagic = vec_splats(quantization_params->vsx.vfmagic);
-  const vector int vimagic = vec_splats(quantization_params->vsx.vimagic);
+  const vector short voutput_zero_point =
+      vec_splats(quantization_params->vsx.output_zero_point);
+  const vector unsigned char vmax =
+      vec_splats(quantization_params->vsx.output_max);
+  const vector unsigned char vmin =
+      vec_splats(quantization_params->vsx.output_min);
 
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -99,27 +101,33 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
     } while (--m != 0);
     input = next_input;
 
-    vector float vacc_hi_hi_f = vec_mul(vec_float(vacc_hi_hi), vscale);
-    vector float vacc_hi_lo_f = vec_mul(vec_float(vacc_hi_lo), vscale);
-    vacc_hi_hi_f = vec_min(vec_max(vacc_hi_hi_f, vfmin), vfmax);
-    vacc_hi_lo_f = vec_min(vec_max(vacc_hi_lo_f, vfmin), vfmax);
-    vacc_hi_hi = vec_sub((vector int)(vec_add(vacc_hi_hi_f, vfmagic)), vimagic);
-    vacc_hi_lo = vec_sub((vector int)(vec_add(vacc_hi_lo_f, vfmagic)), vimagic);
-    const vector short vout_hi = vec_packs(vacc_hi_hi, vacc_hi_lo);
+    const vector float vacc_hi_hi_f = vec_mul(vec_float(vacc_hi_hi), vscale);
+    const vector float vacc_hi_lo_f = vec_mul(vec_float(vacc_hi_lo), vscale);
+
+    const vector int vscaled_hi_hi = vec_signed(vec_round(vacc_hi_hi_f));
+    const vector int vscaled_hi_lo = vec_signed(vec_round(vacc_hi_lo_f));
+
+    const vector short vout_hi =
+        vec_add(vec_packs(vscaled_hi_hi, vscaled_hi_lo), voutput_zero_point);
 
     vector unsigned char vout;
     if (kc > 8) {
-      vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
-      vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
-      vacc_lo_hi_f = vec_min(vec_max(vacc_lo_hi_f, vfmin), vfmax);
-      vacc_lo_lo_f = vec_min(vec_max(vacc_lo_lo_f, vfmin), vfmax);
-      vacc_lo_hi = vec_sub((vector int)(vec_add(vacc_lo_hi_f, vfmagic)), vimagic);
-      vacc_lo_lo = vec_sub((vector int)(vec_add(vacc_lo_lo_f, vfmagic)), vimagic);
-      const vector short vout_lo = vec_packs(vacc_lo_hi, vacc_lo_lo);
+      const vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
+      const vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
+
+      const vector int vscaled_lo_hi = vec_signed(vec_round(vacc_lo_hi_f));
+      const vector int vscaled_lo_lo = vec_signed(vec_round(vacc_lo_lo_f));
+
+      const vector short vout_lo =
+          vec_add(vec_packs(vscaled_lo_hi, vscaled_lo_lo), voutput_zero_point);
+
       vout = vec_packsu(vout_hi, vout_lo);
     } else {
       vout = vec_packsu(vout_hi, vout_hi);
     }
+
+    vout = vec_min(vout, vmax);
+    vout = vec_max(vout, vmin);
 
     if (kc & 8) {
       *((uint64_t *)output) = ((vector unsigned long long)vout)[0];
