@@ -60,14 +60,6 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   const vector unsigned char shift_w = {
       64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  const vector unsigned char mask_01 = {
-      0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3};
-  const vector unsigned char mask_23 = {
-      4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7};
-  const vector unsigned char mask_45 = {
-      8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11};
-  const vector unsigned char mask_67 = {
-      12, 13, 14, 15, 12, 13, 14, 15, 12, 13, 14, 15, 12, 13, 14, 15};
 
   do {
     const uint8_t* restrict a0 = *a++;
@@ -83,21 +75,18 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       const vector short vxa0_lo =
           sub_zero_point((vector short)vec_mergel(va0, vzero), va_zero_point);
       a0 += 16;
-
       const vector unsigned char va1 = vec_xl(0, a1);
       const vector short vxa1_hi =
           sub_zero_point((vector short)vec_mergeh(va1, vzero), va_zero_point);
       const vector short vxa1_lo =
           sub_zero_point((vector short)vec_mergel(va1, vzero), va_zero_point);
       a1 += 16;
-
       const vector unsigned char va2 = vec_xl(0, a2);
       const vector short vxa2_hi =
           sub_zero_point((vector short)vec_mergeh(va2, vzero), va_zero_point);
       const vector short vxa2_lo =
           sub_zero_point((vector short)vec_mergel(va2, vzero), va_zero_point);
       a2 += 16;
-
       const vector unsigned char va3 = vec_xl(0, a3);
       const vector short vxa3_hi =
           sub_zero_point((vector short)vec_mergeh(va3, vzero), va_zero_point);
@@ -113,13 +102,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       w = (const void*)((uintptr_t)w + 16);
 
       const vector short vxa0_hi_01 =
-          (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa0_hi)[0]);
       const vector short vxa1_hi_01 =
-          (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa1_hi)[0]);
       const vector short vxa2_hi_01 =
-          (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa2_hi)[0]);
       const vector short vxa3_hi_01 =
-          (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa3_hi)[0]);
 
       vacc0x0123 = vec_msum(vxa0_hi_01, vxb0, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_hi_01, vxb0, vacc1x0123);
@@ -127,13 +116,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       vacc3x0123 = vec_msum(vxa3_hi_01, vxb0, vacc3x0123);
 
       const vector short vxa0_hi_23 =
-          (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_23);
+          (vector short)vec_splats(((vector int)vxa0_hi)[1]);
       const vector short vxa1_hi_23 =
-          (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_23);
+          (vector short)vec_splats(((vector int)vxa1_hi)[1]);
       const vector short vxa2_hi_23 =
-          (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_23);
+          (vector short)vec_splats(((vector int)vxa2_hi)[1]);
       const vector short vxa3_hi_23 =
-          (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_23);
+          (vector short)vec_splats(((vector int)vxa3_hi)[1]);
 
       vacc0x0123 = vec_msum(vxa0_hi_23, vxb1, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_hi_23, vxb1, vacc1x0123);
@@ -148,13 +137,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       w = (const void*)((uintptr_t)w + 16);
 
       const vector short vxa0_hi_45 =
-          (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_45);
+          (vector short)vec_splats(((vector int)vxa0_hi)[2]);
       const vector short vxa1_hi_45 =
-          (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_45);
+          (vector short)vec_splats(((vector int)vxa1_hi)[2]);
       const vector short vxa2_hi_45 =
-          (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_45);
+          (vector short)vec_splats(((vector int)vxa2_hi)[2]);
       const vector short vxa3_hi_45 =
-          (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_45);
+          (vector short)vec_splats(((vector int)vxa3_hi)[2]);
 
       vacc0x0123 = vec_msum(vxa0_hi_45, vxb2, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_hi_45, vxb2, vacc1x0123);
@@ -162,13 +151,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       vacc3x0123 = vec_msum(vxa3_hi_45, vxb2, vacc3x0123);
 
       const vector short vxa0_hi_67 =
-          (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_67);
+          (vector short)vec_splats(((vector int)vxa0_hi)[3]);
       const vector short vxa1_hi_67 =
-          (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_67);
+          (vector short)vec_splats(((vector int)vxa1_hi)[3]);
       const vector short vxa2_hi_67 =
-          (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_67);
+          (vector short)vec_splats(((vector int)vxa2_hi)[3]);
       const vector short vxa3_hi_67 =
-          (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_67);
+          (vector short)vec_splats(((vector int)vxa3_hi)[3]);
 
       vacc0x0123 = vec_msum(vxa0_hi_67, vxb3, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_hi_67, vxb3, vacc1x0123);
@@ -183,13 +172,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       w = (const void*)((uintptr_t)w + 16);
 
       const vector short vxa0_lo_01 =
-          (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_01);
+          (vector short)vec_splats(((vector int)vxa0_lo)[0]);
       const vector short vxa1_lo_01 =
-          (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_01);
+          (vector short)vec_splats(((vector int)vxa1_lo)[0]);
       const vector short vxa2_lo_01 =
-          (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_01);
+          (vector short)vec_splats(((vector int)vxa2_lo)[0]);
       const vector short vxa3_lo_01 =
-          (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_01);
+          (vector short)vec_splats(((vector int)vxa3_lo)[0]);
 
       vacc0x0123 = vec_msum(vxa0_lo_01, vxb4, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_lo_01, vxb4, vacc1x0123);
@@ -197,13 +186,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       vacc3x0123 = vec_msum(vxa3_lo_01, vxb4, vacc3x0123);
 
       const vector short vxa0_lo_23 =
-          (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_23);
+          (vector short)vec_splats(((vector int)vxa0_lo)[1]);
       const vector short vxa1_lo_23 =
-          (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_23);
+          (vector short)vec_splats(((vector int)vxa1_lo)[1]);
       const vector short vxa2_lo_23 =
-          (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_23);
+          (vector short)vec_splats(((vector int)vxa2_lo)[1]);
       const vector short vxa3_lo_23 =
-          (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_23);
+          (vector short)vec_splats(((vector int)vxa3_lo)[1]);
 
       vacc0x0123 = vec_msum(vxa0_lo_23, vxb5, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_lo_23, vxb5, vacc1x0123);
@@ -218,13 +207,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       w = (const void*)((uintptr_t)w + 16);
 
       const vector short vxa0_lo_45 =
-          (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_45);
+          (vector short)vec_splats(((vector int)vxa0_lo)[2]);
       const vector short vxa1_lo_45 =
-          (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_45);
+          (vector short)vec_splats(((vector int)vxa1_lo)[2]);
       const vector short vxa2_lo_45 =
-          (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_45);
+          (vector short)vec_splats(((vector int)vxa2_lo)[2]);
       const vector short vxa3_lo_45 =
-          (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_45);
+          (vector short)vec_splats(((vector int)vxa3_lo)[2]);
 
       vacc0x0123 = vec_msum(vxa0_lo_45, vxb6, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_lo_45, vxb6, vacc1x0123);
@@ -232,13 +221,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       vacc3x0123 = vec_msum(vxa3_lo_45, vxb6, vacc3x0123);
 
       const vector short vxa0_lo_67 =
-          (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_67);
+          (vector short)vec_splats(((vector int)vxa0_lo)[3]);
       const vector short vxa1_lo_67 =
-          (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_67);
+          (vector short)vec_splats(((vector int)vxa1_lo)[3]);
       const vector short vxa2_lo_67 =
-          (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_67);
+          (vector short)vec_splats(((vector int)vxa2_lo)[3]);
       const vector short vxa3_lo_67 =
-          (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_67);
+          (vector short)vec_splats(((vector int)vxa3_lo)[3]);
 
       vacc0x0123 = vec_msum(vxa0_lo_67, vxb7, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_lo_67, vxb7, vacc1x0123);
@@ -286,13 +275,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
           vec_sub((vector short)vec_mergeh(vb0, vzero), vb_zero_point);
 
       const vector short vxa0_hi_01 =
-          (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa0_hi)[0]);
       const vector short vxa1_hi_01 =
-          (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa1_hi)[0]);
       const vector short vxa2_hi_01 =
-          (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa2_hi)[0]);
       const vector short vxa3_hi_01 =
-          (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_01);
+          (vector short)vec_splats(((vector int)vxa3_hi)[0]);
 
       vacc0x0123 = vec_msum(vxa0_hi_01, vxb0, vacc0x0123);
       vacc1x0123 = vec_msum(vxa1_hi_01, vxb0, vacc1x0123);
@@ -307,13 +296,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
             vec_sub((vector short)vec_mergeh(vb1, vzero), vb_zero_point);
 
         const vector short vxa0_hi_23 =
-            (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_23);
+            (vector short)vec_splats(((vector int)vxa0_hi)[1]);
         const vector short vxa1_hi_23 =
-            (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_23);
+            (vector short)vec_splats(((vector int)vxa1_hi)[1]);
         const vector short vxa2_hi_23 =
-            (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_23);
+            (vector short)vec_splats(((vector int)vxa2_hi)[1]);
         const vector short vxa3_hi_23 =
-            (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_23);
+            (vector short)vec_splats(((vector int)vxa3_hi)[1]);
 
         vacc0x0123 = vec_msum(vxa0_hi_23, vxb1, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_hi_23, vxb1, vacc1x0123);
@@ -330,13 +319,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
             vec_sub((vector short)vec_mergeh(vb2, vzero), vb_zero_point);
 
         const vector short vxa0_hi_45 =
-            (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_45);
+            (vector short)vec_splats(((vector int)vxa0_hi)[2]);
         const vector short vxa1_hi_45 =
-            (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_45);
+            (vector short)vec_splats(((vector int)vxa1_hi)[2]);
         const vector short vxa2_hi_45 =
-            (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_45);
+            (vector short)vec_splats(((vector int)vxa2_hi)[2]);
         const vector short vxa3_hi_45 =
-            (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_45);
+            (vector short)vec_splats(((vector int)vxa3_hi)[2]);
 
         vacc0x0123 = vec_msum(vxa0_hi_45, vxb2, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_hi_45, vxb2, vacc1x0123);
@@ -352,13 +341,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
             vec_sub((vector short)vec_mergeh(vb3, vzero), vb_zero_point);
 
         const vector short vxa0_hi_67 =
-            (vector short)vec_perm(vxa0_hi, vxa0_hi, mask_67);
+            (vector short)vec_splats(((vector int)vxa0_hi)[3]);
         const vector short vxa1_hi_67 =
-            (vector short)vec_perm(vxa1_hi, vxa1_hi, mask_67);
+            (vector short)vec_splats(((vector int)vxa1_hi)[3]);
         const vector short vxa2_hi_67 =
-            (vector short)vec_perm(vxa2_hi, vxa2_hi, mask_67);
+            (vector short)vec_splats(((vector int)vxa2_hi)[3]);
         const vector short vxa3_hi_67 =
-            (vector short)vec_perm(vxa3_hi, vxa3_hi, mask_67);
+            (vector short)vec_splats(((vector int)vxa3_hi)[3]);
 
         vacc0x0123 = vec_msum(vxa0_hi_67, vxb3, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_hi_67, vxb3, vacc1x0123);
@@ -374,13 +363,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
             vec_sub((vector short)vec_mergeh(vb4, vzero), vb_zero_point);
 
         const vector short vxa0_lo_01 =
-            (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_01);
+            (vector short)vec_splats(((vector int)vxa0_lo)[0]);
         const vector short vxa1_lo_01 =
-            (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_01);
+            (vector short)vec_splats(((vector int)vxa1_lo)[0]);
         const vector short vxa2_lo_01 =
-            (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_01);
+            (vector short)vec_splats(((vector int)vxa2_lo)[0]);
         const vector short vxa3_lo_01 =
-            (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_01);
+            (vector short)vec_splats(((vector int)vxa3_lo)[0]);
 
         vacc0x0123 = vec_msum(vxa0_lo_01, vxb4, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_lo_01, vxb4, vacc1x0123);
@@ -396,13 +385,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
             vec_sub((vector short)vec_mergeh(vb5, vzero), vb_zero_point);
 
         const vector short vxa0_lo_23 =
-            (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_23);
+            (vector short)vec_splats(((vector int)vxa0_lo)[1]);
         const vector short vxa1_lo_23 =
-            (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_23);
+            (vector short)vec_splats(((vector int)vxa1_lo)[1]);
         const vector short vxa2_lo_23 =
-            (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_23);
+            (vector short)vec_splats(((vector int)vxa2_lo)[1]);
         const vector short vxa3_lo_23 =
-            (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_23);
+            (vector short)vec_splats(((vector int)vxa3_lo)[1]);
 
         vacc0x0123 = vec_msum(vxa0_lo_23, vxb5, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_lo_23, vxb5, vacc1x0123);
@@ -418,13 +407,13 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
             vec_sub((vector short)vec_mergeh(vb6, vzero), vb_zero_point);
 
         const vector short vxa0_lo_45 =
-            (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_45);
+            (vector short)vec_splats(((vector int)vxa0_lo)[2]);
         const vector short vxa1_lo_45 =
-            (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_45);
+            (vector short)vec_splats(((vector int)vxa1_lo)[2]);
         const vector short vxa2_lo_45 =
-            (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_45);
+            (vector short)vec_splats(((vector int)vxa2_lo)[2]);
         const vector short vxa3_lo_45 =
-            (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_45);
+            (vector short)vec_splats(((vector int)vxa3_lo)[2]);
 
         vacc0x0123 = vec_msum(vxa0_lo_45, vxb6, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_lo_45, vxb6, vacc1x0123);
@@ -439,14 +428,14 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
         const vector short vxb7 =
             vec_sub((vector short)vec_mergeh(vb7, vzero), vb_zero_point);
 
-        const vector short vxa0_lo_67 =
-            (vector short)vec_perm(vxa0_lo, vxa0_lo, mask_67);
-        const vector short vxa1_lo_67 =
-            (vector short)vec_perm(vxa1_lo, vxa1_lo, mask_67);
-        const vector short vxa2_lo_67 =
-            (vector short)vec_perm(vxa2_lo, vxa2_lo, mask_67);
-        const vector short vxa3_lo_67 =
-            (vector short)vec_perm(vxa3_lo, vxa3_lo, mask_67);
+      const vector short vxa0_lo_67 =
+          (vector short)vec_splats(((vector int)vxa0_lo)[3]);
+      const vector short vxa1_lo_67 =
+          (vector short)vec_splats(((vector int)vxa1_lo)[3]);
+      const vector short vxa2_lo_67 =
+          (vector short)vec_splats(((vector int)vxa2_lo)[3]);
+      const vector short vxa3_lo_67 =
+          (vector short)vec_splats(((vector int)vxa3_lo)[3]);
 
         vacc0x0123 = vec_msum(vxa0_lo_67, vxb7, vacc0x0123);
         vacc1x0123 = vec_msum(vxa1_lo_67, vxb7, vacc1x0123);
