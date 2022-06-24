@@ -374,6 +374,7 @@ static void init(void) {
       .x4 = pytorch_qnnp_x8zip_x4__vsx,
       .xm = pytorch_qnnp_x8zip_xm__vsx,
   };
+  pytorch_qnnp_params.u8rmax = pytorch_u8rmax_ukernel__vsx;
   pytorch_qnnp_params.u8lut32norm = pytorch_u8lut32norm_ukernel__scalar;
   pytorch_qnnp_params.x8lut = pytorch_x8lut_ukernel__scalar;
 #else
