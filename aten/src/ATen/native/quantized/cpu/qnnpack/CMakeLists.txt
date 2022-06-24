@@ -277,7 +277,11 @@ set(PYTORCH_QNNPACK_PPC64LE_VSX_UKERNELS
   src/u8maxpool/sub16-vsx.c
   src/q8conv/4x4c2-vsx.c
   src/q8gemm/4x4c2-dq-vsx.c
-  src/q8gemm/4x4c2-vsx.c)
+  src/q8gemm/4x4c2-vsx.c
+  src/x8zip/x2-vsx.c
+  src/x8zip/x3-vsx.c
+  src/x8zip/x4-vsx.c
+  src/x8zip/xm-vsx.c)
 
 set(PYTORCH_QNNPACK_UKERNELS ${PYTORCH_QNNPACK_SCALAR_UKERNELS} ${PYTORCH_QNNPACK_PSIMD_UKERNELS})
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[5-8]" OR IOS_ARCH MATCHES "^armv7")

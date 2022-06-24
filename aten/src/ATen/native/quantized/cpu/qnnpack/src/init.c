@@ -368,6 +368,12 @@ static void init(void) {
       .qr = 8,
       .kr = 16,
   };
+  pytorch_qnnp_params.x8zip = (struct pytorch_x8zip_parameters){
+      .x2 = pytorch_qnnp_x8zip_x2__vsx,
+      .x3 = pytorch_qnnp_x8zip_x3__vsx,
+      .x4 = pytorch_qnnp_x8zip_x4__vsx,
+      .xm = pytorch_qnnp_x8zip_xm__vsx,
+  };
   pytorch_qnnp_params.u8lut32norm = pytorch_u8lut32norm_ukernel__scalar;
   pytorch_qnnp_params.x8lut = pytorch_x8lut_ukernel__scalar;
 #else
