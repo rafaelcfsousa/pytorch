@@ -45,7 +45,7 @@ uint8_t pytorch_u8rmax_ukernel__vsx(size_t n, const uint8_t* x) {
       vmax = vec_max(vmax, vec_sro(vmax, vshift_32b));
       vmax = vec_max(vmax, vec_sro(vmax, vshift_16b));
       vmax = vec_max(vmax, vec_sro(vmax, vshift_8b));
-      return ((vector unsigned int)vmax)[0];
+      return vmax[0];
     }
   else {
     uint8_t vmax = 0;
