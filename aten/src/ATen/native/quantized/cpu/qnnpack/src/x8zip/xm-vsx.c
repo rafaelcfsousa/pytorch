@@ -210,34 +210,4 @@ void pytorch_qnnp_x8zip_xm__vsx(
       } while (--l != 0);
     } while (--k != 0);
   }
-  /*
-        if (k & 4) {
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-          vxyzw0 = _mm_shufflelo_epi16(vxyzw0, _MM_SHUFFLE(3, 2, 3, 2));
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-          vxyzw0 = _mm_unpackhi_epi64(vxyzw0, vxyzw0);
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-          vxyzw0 = _mm_shufflelo_epi16(vxyzw0, _MM_SHUFFLE(3, 2, 3, 2));
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-          vxyzw0 = vxyzw1;
-        }
-
-        if (k & 2) {
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-          vxyzw0 = _mm_shufflelo_epi16(vxyzw0, _MM_SHUFFLE(3, 2, 3, 2));
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-          vxyzw0 = _mm_unpackhi_epi64(vxyzw0, vxyzw0);
-        }
-        if (k & 1) {
-          *((uint32_t*)output) = _mm_cvtsi128_si32(vxyzw0);
-          output = (void*)((uintptr_t)output + m);
-        }
-      }
-  */
 }
