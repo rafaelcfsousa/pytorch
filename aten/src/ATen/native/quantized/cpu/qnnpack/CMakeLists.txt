@@ -278,6 +278,7 @@ set(PYTORCH_QNNPACK_PPC64LE_VSX_UKERNELS
   src/q8conv/4x4c2-vsx.c
   src/q8gemm/4x4c2-dq-vsx.c
   src/q8gemm/4x4c2-vsx.c
+  src/q8vadd/vsx.c
   src/u8clamp/vsx.c
   src/u8rmax/vsx.c
   src/x8zip/x2-vsx.c

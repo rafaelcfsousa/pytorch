@@ -338,6 +338,58 @@ static void init(void) {
   pytorch_qnnp_params.u8lut32norm = pytorch_u8lut32norm_ukernel__scalar;
   pytorch_qnnp_params.x8lut = pytorch_x8lut_ukernel__scalar;
 #elif CPUINFO_ARCH_PPC64
+  pytorch_qnnp_params.q8conv = (struct pytorch_q8conv_parameters){
+      .gemm = pytorch_q8gemm_ukernel_4x4c2__vsx,
+      .conv = pytorch_q8conv_ukernel_4x4c2__vsx,
+      .gemm_dq = pytorch_q8gemm_dq_ukernel_4x4c2__vsx,
+      .mr = 4,
+      .nr = 4,
+      .kr = 2,
+  };
+  /*
+  pytorch_qnnp_params.q8gemm_sparse_c1x4 = (struct pytorch_q8gemm_sparse_parameters){
+      .gemm_dq = NULL,
+      .packedA_gemm_dq = pytorch_q8gemm_dq_sparse_1x4_ukernel_8x4_packedA__sse2,
+      .packA = pytorch_q8gemm_sparse_packA_ukernel_8x4__sse2,
+      .mr = 8,
+      .nr = 4,
+      .kr = 4,
+      .log2_mr = 3,
+      .log2_row_block_size = 0,
+      .row_block_size = 1,
+      .col_block_size = 4,
+  };
+  pytorch_qnnp_params.q8gemm_sparse_c8x1 = (struct pytorch_q8gemm_sparse_parameters){
+      .gemm_dq = NULL,
+      .packedA_gemm_dq = NULL,
+      .packA = NULL,
+      .mr = 4,
+      .nr = 8,
+      .kr = 1,
+      .log2_mr = 2,
+      .log2_row_block_size = 3,
+      .row_block_size = 8,
+      .col_block_size = 1,
+  };
+  pytorch_qnnp_params.q8conv_xzp = (struct pytorch_q8conv_xzp_parameters){
+      .kthreshold = SIZE_MAX,
+  };
+  pytorch_qnnp_params.q8dw9 = (struct pytorch_q8dwconv2d_up_parameters){
+      .updw = pytorch_q8dwconv_ukernel_up8x9__sse2,
+      .updw_per_channel = pytorch_q8dwconv_ukernel_up8x9_per_channel__sse2,
+      .cr = 8,
+  };
+  pytorch_qnnp_params.q8dw25 = (struct pytorch_q8dwconv2d_mp_parameters){
+      .mpdw = pytorch_q8dwconv_ukernel_mp8x25__sse2,
+      .mpdw_per_channel = pytorch_q8dwconv_ukernel_mp8x25_per_channel__sse2,
+      .cr = 8,
+  };
+  pytorch_qnnp_params.q8dw27 = (struct pytorch_q8dwconv3d_mp_parameters){
+      .mpdw = pytorch_q8dwconv_ukernel_mp8x27__sse2,
+      .cr = 8,
+  };
+  */
+  pytorch_qnnp_params.q8vadd = pytorch_q8vadd_ukernel__vsx;
   pytorch_qnnp_params.q8gavgpool = (struct pytorch_q8gavgpool_parameters){
       .ltnr = pytorch_q8gavgpool_ukernel_up16xm__vsx,
       .genr_lemr = pytorch_q8gavgpool_ukernel_up16x7__vsx,
@@ -352,14 +404,6 @@ static void init(void) {
       .mr = 9,
       .qr = 8,
       .kr = 16,
-  };
-  pytorch_qnnp_params.q8conv = (struct pytorch_q8conv_parameters){
-      .gemm = pytorch_q8gemm_ukernel_4x4c2__vsx,
-      .conv = pytorch_q8conv_ukernel_4x4c2__vsx,
-      .gemm_dq = pytorch_q8gemm_dq_ukernel_4x4c2__vsx,
-      .mr = 4,
-      .nr = 4,
-      .kr = 2,
   };
   pytorch_qnnp_params.u8maxpool = (struct pytorch_u8maxpool_parameters){
       .ltkr = pytorch_u8maxpool_ukernel_sub16__vsx,

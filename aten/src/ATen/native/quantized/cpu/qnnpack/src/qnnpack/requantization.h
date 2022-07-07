@@ -385,6 +385,21 @@ pytorch_qnnp_compute_add_quantization_params(
   params.neon.right_shift = (int32_t)-shift;
   params.neon.y_max = output_max;
   params.neon.y_min = output_min;
+#elif CPUINFO_ARCH_PPC64
+  const uint32_t remainder_mask = (UINT32_C(1) << shift) - UINT32_C(1);
+  const uint32_t remainder_threshold = remainder_mask >> 1;
+  const int32_t zero_point_product = (int32_t) -
+      (a_multiplier * (uint32_t)a_zero_point +
+       b_multiplier * (uint32_t)b_zero_point);
+  params.vsx.zero_point_product = zero_point_product;
+  params.vsx.a_multiplier = a_multiplier;
+  params.vsx.b_multiplier = b_multiplier;
+  params.vsx.y_zero_point = (int16_t)(uint16_t)output_zero_point;
+  params.vsx.remainder_mask = remainder_mask;
+  params.vsx.remainder_threshold = remainder_threshold;
+  params.vsx.shift = shift;
+  params.vsx.y_max = output_max;
+  params.vsx.y_min = output_min;
 #else
   const uint32_t remainder_mask = (UINT32_C(1) << shift) - UINT32_C(1);
   const uint32_t remainder_threshold = remainder_mask >> 1;

@@ -227,6 +227,19 @@ union pytorch_qnnp_add_quantization_params {
     uint32_t b_multiplier;
   } sse2;
 #endif
+#if CPUINFO_ARCH_PPC64
+  struct {
+    int32_t zero_point_product;
+    int32_t remainder_mask;
+    int32_t remainder_threshold;
+    int16_t y_zero_point;
+    uint32_t a_multiplier;
+    uint32_t b_multiplier;
+    uint8_t y_max;
+    uint8_t y_min;
+    uint32_t shift;
+  } vsx;
+#endif
 };
 
 union pytorch_qnnp_avgpool_quantization_params {
