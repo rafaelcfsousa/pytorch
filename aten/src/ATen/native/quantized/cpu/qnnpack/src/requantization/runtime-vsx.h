@@ -10,8 +10,8 @@
 
 #include <altivec.h>
 
-PYTORCH_QNNP_INLINE vector signed short
-sub_zero_point(const vector signed short va, const vector signed short vzp) {
+PYTORCH_QNNP_INLINE vector short
+sub_zero_point(const vector short va, const vector short vzp) {
 #if PYTORCH_QNNPACK_RUNTIME_QUANTIZATION
   // Run-time quantization
   return vec_sub(va, vzp);
