@@ -465,8 +465,10 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
 
   vector unsigned char vout = vec_packsu(vacc01x0123, vacc23x0123);
 
-  vector unsigned char vmin = vec_splats(quantization_params->vsx.output_min);
-  vector unsigned char vmax = vec_splats(quantization_params->vsx.output_max);
+  const vector unsigned char vmin =
+      vec_splats(quantization_params->vsx.output_min);
+  const vector unsigned char vmax =
+      vec_splats(quantization_params->vsx.output_max);
   vout = vec_min(vout, vmax);
   vout = vec_max(vout, vmin);
 

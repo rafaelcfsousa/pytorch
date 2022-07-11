@@ -235,23 +235,23 @@ void pytorch_q8vadd_ukernel__vsx(
         if (n & 8) {
           *(uint64_t*)y = ((vector unsigned long long)vy)[0];
           y += 8;
-          const vector unsigned char vshift_8B = {
+          const vector unsigned char vshift_8bytes = {
               8 * 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-          vy = vec_sro(vy, vshift_8B);
+          vy = vec_sro(vy, vshift_8bytes);
         }
         if (n & 4) {
           *(uint32_t*)y = ((vector unsigned int)vy)[0];
           y += 4;
-          const vector unsigned char vshift_4B = {
+          const vector unsigned char vshift_4bytes = {
             8 * 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-          vy = vec_sro(vy, vshift_4B);
+          vy = vec_sro(vy, vshift_4bytes);
         }
         if (n & 2) {
           *(uint16_t*)y = ((vector unsigned short)vy)[0];
           y += 2;
-          const vector unsigned char vshift_2B = {
+          const vector unsigned char vshift_2bytes = {
             8 * 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-          vy = vec_sro(vy, vshift_2B);
+          vy = vec_sro(vy, vshift_2bytes);
         }
         if (n & 1) {
           y[0] = vy[0];
