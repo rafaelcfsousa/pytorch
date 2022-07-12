@@ -271,7 +271,6 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
         vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
     const vector short vxb0 =
         vec_sub((vector short)vec_mergeh(vb0, vzero), vb_zero_point);
-    w = (const void*)((uintptr_t)w + 8);
 
     const vector short vxa0_hi_01 =
         (vector short)vec_splats(((vector int)vxa0_hi)[0]);
@@ -289,10 +288,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
 
     if (k > 2) {
       const vector unsigned char vb1 =
-          vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+          vec_sro(vec_xl(0, (const unsigned char*)w), shift_w);
       const vector short vxb1 =
           vec_sub((vector short)vec_mergeh(vb1, vzero), vb_zero_point);
-      w = (const void*)((uintptr_t)w + 8);
 
       const vector short vxa0_hi_23 =
           (vector short)vec_splats(((vector int)vxa0_hi)[1]);
@@ -309,10 +307,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
       vacc3x0123 = vec_msum(vxa3_hi_23, vxb1, vacc3x0123);
       if (k > 4) {
         const vector unsigned char vb2 =
-            vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+            vec_sro(vec_xl(8, (const unsigned char*)w), shift_w);
         const vector short vxb2 =
             vec_sub((vector short)vec_mergeh(vb2, vzero), vb_zero_point);
-        w = (const void*)((uintptr_t)w + 8);
 
         const vector short vxa0_hi_45 =
             (vector short)vec_splats(((vector int)vxa0_hi)[2]);
@@ -329,10 +326,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
         vacc3x0123 = vec_msum(vxa3_hi_45, vxb2, vacc3x0123);
         if (k > 6) {
           const vector unsigned char vb3 =
-              vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+              vec_sro(vec_xl(16, (const unsigned char*)w), shift_w);
           const vector short vxb3 =
               vec_sub((vector short)vec_mergeh(vb3, vzero), vb_zero_point);
-          w = (const void*)((uintptr_t)w + 8);
 
           const vector short vxa0_hi_67 =
               (vector short)vec_splats(((vector int)vxa0_hi)[3]);
@@ -349,10 +345,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
           vacc3x0123 = vec_msum(vxa3_hi_67, vxb3, vacc3x0123);
           if (k > 8) {
             const vector unsigned char vb4 =
-                vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+                vec_sro(vec_xl(24, (const unsigned char*)w), shift_w);
             const vector short vxb4 =
                 vec_sub((vector short)vec_mergeh(vb4, vzero), vb_zero_point);
-            w = (const void*)((uintptr_t)w + 8);
 
             const vector short vxa0_lo = sub_zero_point(
                 (vector short)vec_mergel(va0, vzero), va_zero_point);
@@ -378,10 +373,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
             vacc3x0123 = vec_msum(vxa3_lo_01, vxb4, vacc3x0123);
             if (k > 10) {
               const vector unsigned char vb5 =
-                  vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+                  vec_sro(vec_xl(32, (const unsigned char*)w), shift_w);
               const vector short vxb5 =
                   vec_sub((vector short)vec_mergeh(vb5, vzero), vb_zero_point);
-              w = (const void*)((uintptr_t)w + 8);
 
               const vector short vxa0_lo_23 =
                   (vector short)vec_splats(((vector int)vxa0_lo)[1]);
@@ -398,10 +392,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
               vacc3x0123 = vec_msum(vxa3_lo_23, vxb5, vacc3x0123);
               if (k > 12) {
                 const vector unsigned char vb6 =
-                    vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+                    vec_sro(vec_xl(40, (const unsigned char*)w), shift_w);
                 const vector short vxb6 = vec_sub(
                     (vector short)vec_mergeh(vb6, vzero), vb_zero_point);
-                w = (const void*)((uintptr_t)w + 8);
 
                 const vector short vxa0_lo_45 =
                     (vector short)vec_splats(((vector int)vxa0_lo)[2]);
@@ -418,10 +411,9 @@ void pytorch_q8gemm_ukernel_4x4c2__vsx(
                 vacc3x0123 = vec_msum(vxa3_lo_45, vxb6, vacc3x0123);
                 if (k > 14) {
                   const vector unsigned char vb7 =
-                      vec_sro(vec_xl(-8, (const unsigned char*)w), shift_w);
+                      vec_sro(vec_xl(48, (const unsigned char*)w), shift_w);
                   const vector short vxb7 = vec_sub(
                       (vector short)vec_mergeh(vb7, vzero), vb_zero_point);
-                  w = (const void*)((uintptr_t)w + 8);
 
                   const vector short vxa0_lo_67 =
                       (vector short)vec_splats(((vector int)vxa0_lo)[3]);
