@@ -371,26 +371,24 @@ static void init(void) {
       .row_block_size = 8,
       .col_block_size = 1,
   };
+  */
   pytorch_qnnp_params.q8conv_xzp = (struct pytorch_q8conv_xzp_parameters){
       .kthreshold = SIZE_MAX,
   };
-  */
   pytorch_qnnp_params.q8dw9 = (struct pytorch_q8dwconv2d_up_parameters){
       .updw = pytorch_q8dwconv_ukernel_up16x9__vsx,
       .updw_per_channel = pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx,
       .cr = 16,
   };
-  /*
   pytorch_qnnp_params.q8dw25 = (struct pytorch_q8dwconv2d_mp_parameters){
-      .mpdw = pytorch_q8dwconv_ukernel_mp8x25__sse2,
-      .mpdw_per_channel = pytorch_q8dwconv_ukernel_mp8x25_per_channel__sse2,
-      .cr = 8,
+      .mpdw = pytorch_q8dwconv_ukernel_mp16x25__vsx,
+      .mpdw_per_channel = pytorch_q8dwconv_ukernel_mp16x25_per_channel__vsx,
+      .cr = 16,
   };
   pytorch_qnnp_params.q8dw27 = (struct pytorch_q8dwconv3d_mp_parameters){
-      .mpdw = pytorch_q8dwconv_ukernel_mp8x27__sse2,
-      .cr = 8,
+      .mpdw = pytorch_q8dwconv_ukernel_mp16x27__vsx,
+      .cr = 16,
   };
-  */
   pytorch_qnnp_params.q8vadd = pytorch_q8vadd_ukernel__vsx;
   pytorch_qnnp_params.q8gavgpool = (struct pytorch_q8gavgpool_parameters){
       .ltnr = pytorch_q8gavgpool_ukernel_up16xm__vsx,
