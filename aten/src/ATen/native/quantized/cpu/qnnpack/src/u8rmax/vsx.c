@@ -31,20 +31,20 @@ uint8_t pytorch_u8rmax_ukernel__vsx(size_t n, const uint8_t* x) {
         const vector unsigned char vx = vec_xl(0, x);
         vmax = vec_max(vmax, vx);
       }
-      const vector unsigned char vshift_32b = {
+      const vector unsigned char vshift_4bytes = {
           32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      const vector unsigned char vshift_16b = {
+      const vector unsigned char vshift_2bytes = {
           16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      const vector unsigned char vshift_8b = {
+      const vector unsigned char vshift_1byte = {
           8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       vmax = vec_max(
           vmax,
           (vector unsigned char)vec_mergel(
               (vector unsigned long long)vmax,
               (vector unsigned long long)vmax));
-      vmax = vec_max(vmax, vec_sro(vmax, vshift_32b));
-      vmax = vec_max(vmax, vec_sro(vmax, vshift_16b));
-      vmax = vec_max(vmax, vec_sro(vmax, vshift_8b));
+      vmax = vec_max(vmax, vec_sro(vmax, vshift_4bytes));
+      vmax = vec_max(vmax, vec_sro(vmax, vshift_2bytes));
+      vmax = vec_max(vmax, vec_sro(vmax, vshift_1byte));
       return vmax[0];
     }
   else {
