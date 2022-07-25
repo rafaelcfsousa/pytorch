@@ -31,7 +31,7 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
       vec_splats(quantization_params->vsx.output_max);
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  
+
   do {
     const uint8_t* i0 = input[0];
     const uint8_t* i1 = input[1];
@@ -277,7 +277,7 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
     if (c != 0) {
       const size_t i_predecrement = 16 - c;
       const vector unsigned char vi_shift = {
-        8 * i_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+          8 * i_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
       const vector unsigned char vkernel_zero_point =
           vec_xl(0, &quantization_params->vsx.kernel_zero_points[channels - c]);
@@ -408,7 +408,7 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
           vec_round(vec_mul(vmultiplier_hi_lo, vec_float(vacc_hi_lo))));
 
       vector short vout_hi =
-        vec_add(vec_packs(vacc_hi_hi, vacc_hi_lo), voutput_zero_point);
+          vec_add(vec_packs(vacc_hi_hi, vacc_hi_lo), voutput_zero_point);
 
       vector unsigned char vout;
       if (c > 8) {
@@ -417,8 +417,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi0_lo =
             sub_zero_point((vector short)vec_mergel(vi0, vzero), va_zero_point);
-        const vector short vxk0_lo =
-            vec_sub((vector short)vec_mergel(vk0, vzero), vkernel_zero_point_lo);
+        const vector short vxk0_lo = vec_sub(
+            (vector short)vec_mergel(vk0, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi0_lo), vec_unpackh(vxk0_lo)));
         vacc_lo_lo = vec_add(
@@ -426,8 +426,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi1_lo =
             sub_zero_point((vector short)vec_mergel(vi1, vzero), va_zero_point);
-        const vector short vxk1_lo =
-            vec_sub((vector short)vec_mergel(vk1, vzero), vkernel_zero_point_lo);
+        const vector short vxk1_lo = vec_sub(
+            (vector short)vec_mergel(vk1, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi1_lo), vec_unpackh(vxk1_lo)));
         vacc_lo_lo = vec_add(
@@ -435,8 +435,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi2_lo =
             sub_zero_point((vector short)vec_mergel(vi2, vzero), va_zero_point);
-        const vector short vxk2_lo =
-            vec_sub((vector short)vec_mergel(vk2, vzero), vkernel_zero_point_lo);
+        const vector short vxk2_lo = vec_sub(
+            (vector short)vec_mergel(vk2, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi2_lo), vec_unpackh(vxk2_lo)));
         vacc_lo_lo = vec_add(
@@ -444,8 +444,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi3_lo =
             sub_zero_point((vector short)vec_mergel(vi3, vzero), va_zero_point);
-        const vector short vxk3_lo =
-            vec_sub((vector short)vec_mergel(vk3, vzero), vkernel_zero_point_lo);
+        const vector short vxk3_lo = vec_sub(
+            (vector short)vec_mergel(vk3, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi3_lo), vec_unpackh(vxk3_lo)));
         vacc_lo_lo = vec_add(
@@ -453,8 +453,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi4_lo =
             sub_zero_point((vector short)vec_mergel(vi4, vzero), va_zero_point);
-        const vector short vxk4_lo =
-            vec_sub((vector short)vec_mergel(vk4, vzero), vkernel_zero_point_lo);
+        const vector short vxk4_lo = vec_sub(
+            (vector short)vec_mergel(vk4, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi4_lo), vec_unpackh(vxk4_lo)));
         vacc_lo_lo = vec_add(
@@ -462,8 +462,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi5_lo =
             sub_zero_point((vector short)vec_mergel(vi5, vzero), va_zero_point);
-        const vector short vxk5_lo =
-            vec_sub((vector short)vec_mergel(vk5, vzero), vkernel_zero_point_lo);
+        const vector short vxk5_lo = vec_sub(
+            (vector short)vec_mergel(vk5, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi5_lo), vec_unpackh(vxk5_lo)));
         vacc_lo_lo = vec_add(
@@ -471,8 +471,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi6_lo =
             sub_zero_point((vector short)vec_mergel(vi6, vzero), va_zero_point);
-        const vector short vxk6_lo =
-            vec_sub((vector short)vec_mergel(vk6, vzero), vkernel_zero_point_lo);
+        const vector short vxk6_lo = vec_sub(
+            (vector short)vec_mergel(vk6, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi6_lo), vec_unpackh(vxk6_lo)));
         vacc_lo_lo = vec_add(
@@ -480,8 +480,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi7_lo =
             sub_zero_point((vector short)vec_mergel(vi7, vzero), va_zero_point);
-        const vector short vxk7_lo =
-            vec_sub((vector short)vec_mergel(vk7, vzero), vkernel_zero_point_lo);
+        const vector short vxk7_lo = vec_sub(
+            (vector short)vec_mergel(vk7, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi7_lo), vec_unpackh(vxk7_lo)));
         vacc_lo_lo = vec_add(
@@ -489,8 +489,8 @@ void pytorch_q8dwconv_ukernel_up16x9_per_channel__vsx(
 
         const vector short vxi8_lo =
             sub_zero_point((vector short)vec_mergel(vi8, vzero), va_zero_point);
-        const vector short vxk8_lo =
-            vec_sub((vector short)vec_mergel(vk8, vzero), vkernel_zero_point_lo);
+        const vector short vxk8_lo = vec_sub(
+            (vector short)vec_mergel(vk8, vzero), vkernel_zero_point_lo);
         vacc_lo_hi = vec_add(
             vacc_lo_hi, vec_mul(vec_unpackh(vxi8_lo), vec_unpackh(vxk8_lo)));
         vacc_lo_lo = vec_add(

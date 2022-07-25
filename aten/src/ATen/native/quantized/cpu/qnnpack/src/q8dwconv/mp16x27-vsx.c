@@ -11,6 +11,7 @@
 #include <math.h>
 #include <qnnpack/q8dwconv.h>
 
+// This function is an adaptation of the one that implements for x86
 void pytorch_q8dwconv_ukernel_mp16x27__vsx(
     size_t channels,
     size_t output_height,

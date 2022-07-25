@@ -346,11 +346,10 @@ static void init(void) {
       .nr = 4,
       .kr = 2,
   };
-  /*
   pytorch_qnnp_params.q8gemm_sparse_c1x4 = (struct pytorch_q8gemm_sparse_parameters){
       .gemm_dq = NULL,
-      .packedA_gemm_dq = pytorch_q8gemm_dq_sparse_1x4_ukernel_8x4_packedA__sse2,
-      .packA = pytorch_q8gemm_sparse_packA_ukernel_8x4__sse2,
+      .packedA_gemm_dq = NULL,
+      .packA = NULL,
       .mr = 8,
       .nr = 4,
       .kr = 4,
@@ -371,7 +370,6 @@ static void init(void) {
       .row_block_size = 8,
       .col_block_size = 1,
   };
-  */
   pytorch_qnnp_params.q8conv_xzp = (struct pytorch_q8conv_xzp_parameters){
       .kthreshold = SIZE_MAX,
   };

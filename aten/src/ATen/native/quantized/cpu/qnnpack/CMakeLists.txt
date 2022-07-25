@@ -267,20 +267,20 @@ set(PYTORCH_QNNPACK_X86_SSE2_UKERNELS
   src/x8zip/xm-sse2.c)
 
 set(PYTORCH_QNNPACK_PPC64LE_VSX_UKERNELS
+  src/q8avgpool/mp16x9p8q-vsx.c
+  src/q8avgpool/up16x9-vsx.c
+  src/q8avgpool/up16xm-vsx.c
+  src/q8conv/4x4c2-vsx.c
   src/q8dwconv/mp16x25-vsx.c
   src/q8dwconv/mp16x25-vsx-per-channel.c
   src/q8dwconv/mp16x27-vsx.c
   src/q8dwconv/up16x9-vsx.c
   src/q8dwconv/up16x9-vsx-per-channel.c
-  src/q8avgpool/mp16x9p8q-vsx.c
-  src/q8avgpool/up16x9-vsx.c
-  src/q8avgpool/up16xm-vsx.c
   src/q8gavgpool/mp16x7p7q-vsx.c
   src/q8gavgpool/up16x7-vsx.c
   src/q8gavgpool/up16xm-vsx.c
   src/u8maxpool/16x9p8q-vsx.c
   src/u8maxpool/sub16-vsx.c
-  src/q8conv/4x4c2-vsx.c
   src/q8gemm/4x4c2-dq-vsx.c
   src/q8gemm/4x4c2-vsx.c
   src/q8vadd/vsx.c

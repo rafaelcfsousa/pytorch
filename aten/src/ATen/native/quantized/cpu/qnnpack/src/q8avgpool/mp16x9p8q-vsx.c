@@ -36,7 +36,6 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
       vec_splats(quantization_params->vsx.output_max);
   const vector unsigned char vmin =
       vec_splats(quantization_params->vsx.output_min);
-
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -135,9 +134,9 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         i6 = (const uint8_t*)((uintptr_t)i6 - address_decrement);
         i7 = (const uint8_t*)((uintptr_t)i7 - address_decrement);
         i8 = (const uint8_t*)((uintptr_t)i8 - address_decrement);
-        const vector unsigned char vshift = {
-          8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+        const vector unsigned char vshift = {
+            8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         const vector unsigned char vi0 = vec_sro(vec_xl(0, i0), vshift);
         const vector unsigned char vi1 = vec_sro(vec_xl(0, i1), vshift);
         const vector unsigned char vi2 = vec_sro(vec_xl(0, i2), vshift);
@@ -159,7 +158,7 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         const vector short vxi8_hi = (vector short)vec_mergeh(vi8, vzero);
 
         const vector short vsum018_hi =
-          vec_add(vec_add(vxi0_hi, vxi1_hi), vxi8_hi);
+            vec_add(vec_add(vxi0_hi, vxi1_hi), vxi8_hi);
         const vector short vsum23_hi = vec_add(vxi2_hi, vxi3_hi);
         const vector short vsum45_hi = vec_add(vxi4_hi, vxi5_hi);
         const vector short vsum67_hi = vec_add(vxi6_hi, vxi7_hi);
@@ -186,7 +185,7 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
           const vector short vxi8_lo = (vector short)vec_mergel(vi8, vzero);
 
           const vector short vsum018_lo =
-            vec_add(vec_add(vxi0_lo, vxi1_lo), vxi8_lo);
+              vec_add(vec_add(vxi0_lo, vxi1_lo), vxi8_lo);
           const vector short vsum23_lo = vec_add(vxi2_lo, vxi3_lo);
           const vector short vsum45_lo = vec_add(vxi4_lo, vxi5_lo);
           const vector short vsum67_lo = vec_add(vxi6_lo, vxi7_lo);
@@ -234,7 +233,6 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         i6 += 16;
         const vector unsigned char vi7 = vec_xl(0, i7);
         i7 += 16;
-
         vector int vacc_hi_hi = vec_xl(0, acc);
         vector int vacc_hi_lo = vec_xl(16, acc);
         vector int vacc_lo_hi = vec_xl(32, acc);
@@ -296,12 +294,9 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         i5 = (const uint8_t*)((uintptr_t)i5 - address_decrement);
         i6 = (const uint8_t*)((uintptr_t)i6 - address_decrement);
         i7 = (const uint8_t*)((uintptr_t)i7 - address_decrement);
+
         const vector unsigned char vshift = {
-          8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-        vector int vacc_hi_hi = vec_xl(0, acc);
-        vector int vacc_hi_lo = vec_xl(16, acc);
-
+            8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         const vector unsigned char vi0 = vec_sro(vec_xl(0, i0), vshift);
         const vector unsigned char vi1 = vec_sro(vec_xl(0, i1), vshift);
         const vector unsigned char vi2 = vec_sro(vec_xl(0, i2), vshift);
@@ -310,6 +305,8 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         const vector unsigned char vi5 = vec_sro(vec_xl(0, i5), vshift);
         const vector unsigned char vi6 = vec_sro(vec_xl(0, i6), vshift);
         const vector unsigned char vi7 = vec_sro(vec_xl(0, i7), vshift);
+        vector int vacc_hi_hi = vec_xl(0, acc);
+        vector int vacc_hi_lo = vec_xl(16, acc);
 
         const vector short vxi0_hi = (vector short)vec_mergeh(vi0, vzero);
         const vector short vxi1_hi = (vector short)vec_mergeh(vi1, vzero);
@@ -417,7 +414,6 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         i6 += 16;
         const vector unsigned char vi7 = vec_xl(0, i7);
         i7 += 16;
-
         vector int vacc_hi_hi = vec_xl(0, acc);
         vector int vacc_hi_lo = vec_xl(16, acc);
         vector int vacc_lo_hi = vec_xl(32, acc);
@@ -500,12 +496,9 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         i5 = (const uint8_t*)((uintptr_t)i5 - address_decrement);
         i6 = (const uint8_t*)((uintptr_t)i6 - address_decrement);
         i7 = (const uint8_t*)((uintptr_t)i7 - address_decrement);
+
         const vector unsigned char vshift = {
-          8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-        vector int vacc_hi_hi = vec_xl(0, acc);
-        vector int vacc_hi_lo = vec_xl(16, acc);
-
+            8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         const vector unsigned char vi0 = vec_sro(vec_xl(0, i0), vshift);
         const vector unsigned char vi1 = vec_sro(vec_xl(0, i1), vshift);
         const vector unsigned char vi2 = vec_sro(vec_xl(0, i2), vshift);
@@ -514,6 +507,8 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         const vector unsigned char vi5 = vec_sro(vec_xl(0, i5), vshift);
         const vector unsigned char vi6 = vec_sro(vec_xl(0, i6), vshift);
         const vector unsigned char vi7 = vec_sro(vec_xl(0, i7), vshift);
+        vector int vacc_hi_hi = vec_xl(0, acc);
+        vector int vacc_hi_lo = vec_xl(16, acc);
 
         const vector short vxi0_hi = (vector short)vec_mergeh(vi0, vzero);
         const vector short vxi1_hi = (vector short)vec_mergeh(vi1, vzero);
@@ -541,10 +536,8 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         const vector float vacc_hi_lo_f =
             vec_mul(vec_float(vacc_hi_lo), vscale);
 
-        const vector int vscaled_hi_hi =
-            vec_signed(vec_round(vacc_hi_hi_f));
-        const vector int vscaled_hi_lo =
-            vec_signed(vec_round(vacc_hi_lo_f));
+        const vector int vscaled_hi_hi = vec_signed(vec_round(vacc_hi_hi_f));
+        const vector int vscaled_hi_lo = vec_signed(vec_round(vacc_hi_lo_f));
 
         const vector short vout_hi = vec_add(
             vec_packs(vscaled_hi_hi, vscaled_hi_lo), voutput_zero_point);
@@ -575,13 +568,13 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
           vacc_lo_hi = vec_add(vacc_lo_hi, vec_unpackh(vsum_lo));
           vacc_lo_lo = vec_add(vacc_lo_lo, vec_unpackl(vsum_lo));
 
-          const vector float vacc_lo_hi_f = vec_mul(vec_float(vacc_lo_hi), vscale);
-          const vector float vacc_lo_lo_f = vec_mul(vec_float(vacc_lo_lo), vscale);
+          const vector float vacc_lo_hi_f =
+              vec_mul(vec_float(vacc_lo_hi), vscale);
+          const vector float vacc_lo_lo_f =
+              vec_mul(vec_float(vacc_lo_lo), vscale);
 
-          const vector int vscaled_lo_hi =
-              vec_signed(vec_round(vacc_lo_hi_f));
-          const vector int vscaled_lo_lo =
-              vec_signed(vec_round(vacc_lo_lo_f));
+          const vector int vscaled_lo_hi = vec_signed(vec_round(vacc_lo_hi_f));
+          const vector int vscaled_lo_lo = vec_signed(vec_round(vacc_lo_lo_f));
 
           const vector short vout_lo = vec_add(
               vec_packs(vscaled_lo_hi, vscaled_lo_lo), voutput_zero_point);
@@ -597,23 +590,23 @@ void pytorch_q8avgpool_ukernel_mp16x9p8q__vsx(
         if (k & 8) {
           *(uint64_t*)output = ((vector unsigned long long)vout)[0];
           output += 8;
-          const vector unsigned char vshift2 = {
+          const vector unsigned char vshift_8bytes = {
               8 * 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-          vout = vec_sro(vout, vshift2);
+          vout = vec_sro(vout, vshift_8bytes);
         }
         if (k & 4) {
           *(uint32_t*)output = ((vector unsigned int)vout)[0];
           output += 4;
-          const vector unsigned char vshift2 = {
+          const vector unsigned char vshift_4bytes = {
               8 * 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-          vout = vec_sro(vout, vshift2);
+          vout = vec_sro(vout, vshift_4bytes);
         }
         if (k & 2) {
           *(uint16_t*)output = ((vector unsigned short)vout)[0];
           output += 2;
-          const vector unsigned char vshift2 = {
+          const vector unsigned char vshift_2bytes = {
               8 * 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-          vout = vec_sro(vout, vshift2);
+          vout = vec_sro(vout, vshift_2bytes);
         }
         if (k & 1) {
           output[0] = vout[0];

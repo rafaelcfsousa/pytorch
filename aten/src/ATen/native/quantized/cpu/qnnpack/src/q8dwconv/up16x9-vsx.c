@@ -35,7 +35,7 @@ void pytorch_q8dwconv_ukernel_up16x9__vsx(
       vec_splats(quantization_params->vsx.output_max);
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  
+
   do {
     const uint8_t* i0 = input[0];
     const uint8_t* i1 = input[1];
@@ -249,9 +249,9 @@ void pytorch_q8dwconv_ukernel_up16x9__vsx(
           vec_signed(vec_round(vec_mul(vmultiplier, vec_float(vacc_lo_lo))));
 
       vector short vout_hi =
-        vec_add(vec_packs(vacc_hi_hi, vacc_hi_lo), voutput_zero_point);
+          vec_add(vec_packs(vacc_hi_hi, vacc_hi_lo), voutput_zero_point);
       vector short vout_lo =
-        vec_add(vec_packs(vacc_lo_hi, vacc_lo_lo), voutput_zero_point);
+          vec_add(vec_packs(vacc_lo_hi, vacc_lo_lo), voutput_zero_point);
 
       vector unsigned char vout = vec_packsu(vout_hi, vout_lo);
 
@@ -264,7 +264,7 @@ void pytorch_q8dwconv_ukernel_up16x9__vsx(
     if (c != 0) {
       const size_t i_predecrement = 16 - c;
       const vector unsigned char vi_shift = {
-        8 * i_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+          8 * i_predecrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
       vector int vacc_hi_hi = vec_xl(0, (int32_t*)w);
       vector int vacc_hi_lo = vec_xl(16, (int32_t*)w);
@@ -383,7 +383,7 @@ void pytorch_q8dwconv_ukernel_up16x9__vsx(
           vec_signed(vec_round(vec_mul(vmultiplier, vec_float(vacc_hi_lo))));
 
       vector short vout_hi =
-        vec_add(vec_packs(vacc_hi_hi, vacc_hi_lo), voutput_zero_point);
+          vec_add(vec_packs(vacc_hi_hi, vacc_hi_lo), voutput_zero_point);
 
       vector unsigned char vout;
       if (c > 8) {
