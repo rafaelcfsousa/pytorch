@@ -156,9 +156,9 @@ void pytorch_q8gavgpool_ukernel_up16x7__vsx(
     i4 = (const uint8_t*)((uintptr_t)i4 - address_decrement);
     i5 = (const uint8_t*)((uintptr_t)i5 - address_decrement);
     i6 = (const uint8_t*)((uintptr_t)i6 - address_decrement);
+
     const vector unsigned char vshift = {
         8 * address_decrement, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
     const vector unsigned char vi0 = vec_sro(vec_xl(0, i0), vshift);
     const vector unsigned char vi1 = vec_sro(vec_xl(0, i1), vshift);
     const vector unsigned char vi2 = vec_sro(vec_xl(0, i2), vshift);
@@ -242,25 +242,25 @@ void pytorch_q8gavgpool_ukernel_up16x7__vsx(
     vout = vec_max(vout, vmin);
 
     if (n & 8) {
-      *(uint64_t *)output = ((vector unsigned long long)vout)[0];
+      *(uint64_t*)output = ((vector unsigned long long)vout)[0];
       output += 8;
-      const vector unsigned char vshift2 = {
-        8 * 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      vout = vec_sro(vout, vshift2);
+      const vector unsigned char vshift_8bytes = {
+          8 * 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      vout = vec_sro(vout, vshift_8bytes);
     }
     if (n & 4) {
-      *(uint32_t *)output = ((vector unsigned int)vout)[0];
+      *(uint32_t*)output = ((vector unsigned int)vout)[0];
       output += 4;
-      const vector unsigned char vshift2 = {
-        8 * 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      vout = vec_sro(vout, vshift2);
+      const vector unsigned char vshift_4bytes = {
+          8 * 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      vout = vec_sro(vout, vshift_4bytes);
     }
     if (n & 2) {
-      *(uint16_t *)output = ((vector unsigned short)vout)[0];
+      *(uint16_t*)output = ((vector unsigned short)vout)[0];
       output += 2;
-      const vector unsigned char vshift2 = {
-        8 * 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      vout = vec_sro(vout, vshift2);
+      const vector unsigned char vshift_2bytes = {
+          8 * 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      vout = vec_sro(vout, vshift_2bytes);
     }
     if (n & 1) {
       output[0] = vout[0];

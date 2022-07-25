@@ -35,11 +35,11 @@ void pytorch_q8gavgpool_ukernel_up16xm__vsx(
 
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  const vector unsigned char mask_shift_2bytes = {
+  const vector unsigned char vshift_2bytes = {
       16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  const vector unsigned char mask_shift_4bytes = {
+  const vector unsigned char vshift_4bytes = {
       32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  const vector unsigned char mask_shift_8bytes = {
+  const vector unsigned char vshift_8bytes = {
       64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   vector int vacc_hi_hi = vbias;
@@ -53,37 +53,37 @@ void pytorch_q8gavgpool_ukernel_up16xm__vsx(
   while (m-- != 0) {
     input += n;
     vector unsigned char vinput = {
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (n & 1) {
       input -= 1;
       vinput = vec_insert(*input, vinput, 0);
     }
     if (n & 2) {
       input -= 2;
-      vinput = vec_slo(vinput, mask_shift_2bytes);
+      vinput = vec_slo(vinput, vshift_2bytes);
       vinput = (vector unsigned char)vec_insert(
           *(uint16_t*)input, (vector unsigned short)vinput, 0);
     }
     if (n & 4) {
       input -= 4;
-      vinput = vec_slo(vinput, mask_shift_4bytes);
+      vinput = vec_slo(vinput, vshift_4bytes);
       vinput = (vector unsigned char)vec_insert(
           *(uint32_t*)input, (vector unsigned int)vinput, 0);
     }
     if (n & 8) {
       input -= 8;
-      vinput = vec_slo(vinput, mask_shift_8bytes);
+      vinput = vec_slo(vinput, vshift_8bytes);
       vinput = (vector unsigned char)vec_insert(
           *(uint64_t*)input, (vector unsigned long long)vinput, 0);
 
-      // Compute the lower part of the vector register vinput
+      // Compute the lower part of the vector vinput
       const vector short vxi_lo = (vector short)vec_mergel(vinput, vzero);
       vacc_lo_hi = vec_add(
           vacc_lo_hi, (vector int)vec_mergeh(vxi_lo, (vector short)vzero));
       vacc_lo_lo = vec_add(
           vacc_lo_lo, (vector int)vec_mergel(vxi_lo, (vector short)vzero));
     }
-    // Compute the higher part of the vector register vinput
+    // Compute the higher part of the vector vinput
     const vector short vxi_hi = (vector short)vec_mergeh(vinput, vzero);
     vacc_hi_hi = vec_add(
         vacc_hi_hi, (vector int)vec_mergeh(vxi_hi, (vector short)vzero));
@@ -123,17 +123,17 @@ void pytorch_q8gavgpool_ukernel_up16xm__vsx(
 
   if (n & 8) {
     *((uint64_t*)output) = ((vector unsigned long long)vout)[0];
-    vout = vec_sro(vout, mask_shift_8bytes);
+    vout = vec_sro(vout, vshift_8bytes);
     output += 8;
   }
   if (n & 4) {
     *((uint32_t*)output) = ((vector unsigned int)vout)[0];
-    vout = vec_sro(vout, mask_shift_4bytes);
+    vout = vec_sro(vout, vshift_4bytes);
     output += 4;
   }
   if (n & 2) {
     *((uint16_t*)output) = ((vector unsigned short)vout)[0];
-    vout = vec_sro(vout, mask_shift_2bytes);
+    vout = vec_sro(vout, vshift_2bytes);
     output += 2;
   }
   if (n & 1) {

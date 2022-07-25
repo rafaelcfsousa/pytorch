@@ -31,6 +31,7 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
 
   const vector short va_zero_point =
       vec_splats(quantization_params->vsx.input_zero_point);
+
   const int16_t vb_zero_point_0 =
       (int16_t)(uint16_t)
           quantization_params->vsx.kernel_zero_points[output_channel_index];
@@ -52,6 +53,7 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       vb_zero_point_2,
       vb_zero_point_3,
       vb_zero_point_3};
+
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   const vector unsigned char shift_w = {
@@ -185,7 +187,6 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
           vec_sub((vector short)vec_mergeh(vb67, vzero), vb_zero_point);
       const vector short vxb7 =
           vec_sub((vector short)vec_mergel(vb67, vzero), vb_zero_point);
-      w = (const void*)((uintptr_t)w + 64);
       const vector short vxa0_lo_45 =
           (vector short)vec_splats(((vector int)vxa0_lo)[2]);
       const vector short vxa1_lo_45 =
@@ -210,6 +211,8 @@ void pytorch_q8conv_ukernel_4x4c2__vsx(
       vacc1x0123 = vec_msum(vxa1_lo_67, vxb7, vacc1x0123);
       vacc2x0123 = vec_msum(vxa2_lo_67, vxb7, vacc2x0123);
       vacc3x0123 = vec_msum(vxa3_lo_67, vxb7, vacc3x0123);
+
+      w = (const void*)((uintptr_t)w + 64);
     }
     if (k != 0) {
       const size_t a_predecrement = 16 - k;

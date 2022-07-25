@@ -35,6 +35,7 @@ void pytorch_q8avgpool_ukernel_up16xm__vsx(
       vec_splats(quantization_params->vsx.output_max);
   const vector unsigned char vmin =
       vec_splats(quantization_params->vsx.output_min);
+
   const vector unsigned char vzero = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   const vector unsigned char vshift_2bytes = {
