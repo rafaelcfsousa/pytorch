@@ -1998,7 +1998,8 @@ TEST(Q8AVGPOOL_UP16x9__VSX, kc_div_16_fulltile) {
     for (size_t kw = 1; kw <= tester.mr(); kw++) {
       if (kh * kw == tester.mr()) {
         for (size_t kc = 16; kc < 128; kc += 24) {
-          tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_up16x9__vsx);
+          tester.kh(kh).kw(kw).kc(kc).test(
+              pytorch_q8avgpool_ukernel_up16x9__vsx);
         }
       }
     }
@@ -2013,7 +2014,8 @@ TEST(Q8AVGPOOL_UP16x9__VSX, kc_div_16_subtile) {
       for (size_t kw = 1; kw <= ks; kw++) {
         if (kh * kw == ks) {
           for (size_t kc = 16; kc < 128; kc += 24) {
-            tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_up16x9__vsx);
+            tester.kh(kh).kw(kw).kc(kc).test(
+                pytorch_q8avgpool_ukernel_up16x9__vsx);
           }
         }
       }
@@ -2043,7 +2045,8 @@ TEST(Q8AVGPOOL_UP16x9__VSX, kc_gt_16_fulltile) {
     for (size_t kw = 1; kw <= tester.mr(); kw++) {
       if (kh * kw == tester.mr()) {
         for (size_t kc = 17; kc < 31; kc++) {
-          tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_up16x9__vsx);
+          tester.kh(kh).kw(kw).kc(kc).test(
+              pytorch_q8avgpool_ukernel_up16x9__vsx);
         }
       }
     }
@@ -2058,7 +2061,8 @@ TEST(Q8AVGPOOL_UP16x9__VSX, kc_gt_16_subtile) {
       for (size_t kw = 1; kw <= ks; kw++) {
         if (kh * kw == ks) {
           for (size_t kc = 17; kc < 31; kc++) {
-            tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_up16x9__vsx);
+            tester.kh(kh).kw(kw).kc(kc).test(
+                pytorch_q8avgpool_ukernel_up16x9__vsx);
           }
         }
       }
@@ -2509,7 +2513,7 @@ TEST(Q8AVGPOOL_UP16xM__VSX, small_n_with_s) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_fulltile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_eq_16_twopass_fulltile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
   const size_t ks = tester.mr() + tester.qr();
@@ -2522,7 +2526,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_fulltile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_subtile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_eq_16_twopass_subtile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
   for (size_t ks = 10; ks < tester.mr() + tester.qr(); ks++) {
@@ -2531,7 +2535,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_twopass_subtile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_multipass_fulltile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_eq_16_multipass_fulltile) {
   TEST_REQUIRES_VSX;
   for (size_t ks : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
@@ -2545,7 +2549,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_multipass_fulltile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_multipass_subtile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_eq_16_multipass_subtile) {
   TEST_REQUIRES_VSX;
   for (size_t ksMax : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).kc(16);
@@ -2556,7 +2560,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_eq_16_multipass_subtile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_fulltile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_twopass_fulltile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
   const size_t ks = 17;
@@ -2566,7 +2570,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_fulltile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_subtile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_twopass_subtile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
   for (size_t ks = 10; ks < tester.mr() + tester.qr(); ks++) {
@@ -2577,7 +2581,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_subtile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_fulltile_with_x_stride) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_twopass_fulltile_with_x_stride) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
   const size_t ks = tester.mr() + tester.qr();
@@ -2593,7 +2597,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_twopass_fulltile_with_x_stride) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_multipass_fulltile) {
   TEST_REQUIRES_VSX;
   for (size_t ks : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
@@ -2601,7 +2605,8 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile) {
       for (size_t kw = 1; kw <= ks; kw++) {
         if (kh * kw == ks) {
           for (size_t kc = 16; kc < 128; kc += 24) {
-            tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+            tester.kh(kh).kw(kw).kc(kc).test(
+                pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
           }
         }
       }
@@ -2609,20 +2614,22 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_subtile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_multipass_subtile) {
   TEST_REQUIRES_VSX;
   for (size_t ksMax : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
     for (size_t ks = ksMax - tester.qr() + 1; ks < ksMax; ks++) {
       for (size_t kc = 16; kc < 128; kc += 24) {
-        tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
-        tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        tester.kc(kc).kh(ks).kw(1).test(
+            pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        tester.kc(kc).kh(1).kw(ks).test(
+            pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
       }
     }
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile_with_x_stride) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_multipass_fulltile_with_x_stride) {
   TEST_REQUIRES_VSX;
   for (size_t ks : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
@@ -2639,7 +2646,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_multipass_fulltile_with_x_stride) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_gt_16_twopass_fulltile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
   const size_t ks = tester.mr() + tester.qr();
@@ -2647,14 +2654,15 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile) {
     for (size_t kw = 1; kw <= ks; kw++) {
       if (kh * kw == ks) {
         for (size_t kc = 16; kc < 32; kc++) {
-          tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+          tester.kh(kh).kw(kw).kc(kc).test(
+              pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
         }
       }
     }
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_subtile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_gt_16_twopass_subtile) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
   for (size_t ks = 10; ks < tester.mr() + tester.qr(); ks++) {
@@ -2665,7 +2673,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_subtile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile_with_x_stride) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_gt_16_twopass_fulltile_with_x_stride) {
   TEST_REQUIRES_VSX;
   auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
   const size_t ks = tester.mr() + tester.qr();
@@ -2681,7 +2689,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_twopass_fulltile_with_x_stride) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_gt_16_multipass_fulltile) {
   TEST_REQUIRES_VSX;
   for (size_t ks : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
@@ -2689,7 +2697,8 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile) {
       for (size_t kw = 1; kw <= ks; kw++) {
         if (kh * kw == ks) {
           for (size_t kc = 16; kc < 32; kc++) {
-            tester.kh(kh).kw(kw).kc(kc).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+            tester.kh(kh).kw(kw).kc(kc).test(
+                pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
           }
         }
       }
@@ -2697,20 +2706,22 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_subtile) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_gt_16_multipass_subtile) {
   TEST_REQUIRES_VSX;
   for (size_t ksMax : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
     for (size_t ks = ksMax - tester.qr() + 1; ks < ksMax; ks++) {
       for (size_t kc = 16; kc < 48; kc++) {
-        tester.kc(kc).kh(ks).kw(1).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
-        tester.kc(kc).kh(1).kw(ks).test(pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        tester.kc(kc).kh(ks).kw(1).test(
+            pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
+        tester.kc(kc).kh(1).kw(ks).test(
+            pytorch_q8avgpool_ukernel_mp16x9p8q__vsx);
       }
     }
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile_with_x_stride) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_gt_16_multipass_fulltile_with_x_stride) {
   TEST_REQUIRES_VSX;
   for (size_t ks : std::vector<size_t>{{25, 49}}) {
     auto tester = AvgPoolMicrokernelTester().kr(16).mr(9).qr(8).iterations(3);
@@ -2727,7 +2738,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_gt_16_multipass_fulltile_with_x_stride) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_x_scale) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_with_x_scale) {
   TEST_REQUIRES_VSX;
   for (size_t n = 1; n <= 5; n += 2) {
     for (size_t kc = 16; kc < 128; kc += 24) {
@@ -2748,7 +2759,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_x_scale) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_x_zero_point) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_with_x_zero_point) {
   TEST_REQUIRES_VSX;
   for (size_t n = 1; n <= 5; n += 2) {
     for (size_t kc = 16; kc < 128; kc += 24) {
@@ -2769,7 +2780,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_x_zero_point) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_scale) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_with_y_scale) {
   TEST_REQUIRES_VSX;
   for (size_t n = 1; n <= 5; n += 2) {
     for (size_t kc = 16; kc < 128; kc += 24) {
@@ -2790,7 +2801,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_scale) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_zero_point) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_with_y_zero_point) {
   TEST_REQUIRES_VSX;
   for (size_t n = 1; n <= 5; n += 2) {
     for (size_t kc = 16; kc < 128; kc += 24) {
@@ -2811,7 +2822,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_zero_point) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_max) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_with_y_max) {
   TEST_REQUIRES_VSX;
   for (size_t n = 1; n <= 5; n += 2) {
     for (size_t kc = 16; kc < 128; kc += 24) {
@@ -2834,7 +2845,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_16_with_y_max) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_8_with_y_min) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, kc_div_16_with_y_min) {
   TEST_REQUIRES_VSX;
   for (size_t n = 1; n <= 5; n += 2) {
     for (size_t kc = 16; kc < 128; kc += 24) {
@@ -2857,7 +2868,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, kc_div_8_with_y_min) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, small_n) {
   TEST_REQUIRES_VSX;
   for (size_t n = 2; n < 5; n++) {
     for (size_t ks : std::vector<size_t>{{5, 7}}) {
@@ -2876,7 +2887,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_x_stride) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, small_n_with_x_stride) {
   TEST_REQUIRES_VSX;
   for (size_t n = 2; n < 5; n++) {
     for (size_t ks : std::vector<size_t>{{5, 7}}) {
@@ -2896,7 +2907,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_x_stride) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_y_stride) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, small_n_with_y_stride) {
   TEST_REQUIRES_VSX;
   for (size_t n = 2; n < 5; n++) {
     for (size_t ks : std::vector<size_t>{{5, 7}}) {
@@ -2916,7 +2927,7 @@ TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_y_stride) {
   }
 }
 
-TEST(Q8AVGPOOL_MP8x9P8Q__VSX, small_n_with_s) {
+TEST(Q8AVGPOOL_MP16x9P8Q__VSX, small_n_with_s) {
   TEST_REQUIRES_VSX;
   for (size_t n = 2; n < 5; n++) {
     for (size_t ks : std::vector<size_t>{{5, 7}}) {

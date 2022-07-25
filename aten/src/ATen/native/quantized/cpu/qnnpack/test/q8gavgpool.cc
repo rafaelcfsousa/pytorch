@@ -1157,13 +1157,15 @@ TEST(Q8GAVGPOOL_UP8xM__SSE2, n_lt_8_with_y_min) {
 #if CPUINFO_ARCH_PPC64
 TEST(Q8GAVGPOOL_UP16x7__VSX, n_eq_16_all_m) {
   TEST_REQUIRES_VSX;
-  GAvgPoolMicrokernelTester().m(7).n(16).test(pytorch_q8gavgpool_ukernel_up16x7__vsx);
+  GAvgPoolMicrokernelTester().m(7).n(16).test(
+      pytorch_q8gavgpool_ukernel_up16x7__vsx);
 }
 
 TEST(Q8GAVGPOOL_UP16x7__VSX, n_eq_16_few_m) {
   TEST_REQUIRES_VSX;
   for (size_t m = 1; m < 7; m++) {
-    GAvgPoolMicrokernelTester().m(m).n(16).test(pytorch_q8gavgpool_ukernel_up16x7__vsx);
+    GAvgPoolMicrokernelTester().m(m).n(16).test(
+        pytorch_q8gavgpool_ukernel_up16x7__vsx);
   }
 }
 
@@ -1240,7 +1242,8 @@ TEST(Q8GAVGPOOL_UP16x7__VSX, n_eq_16_all_m_with_y_min) {
 TEST(Q8GAVGPOOL_UP16x7__VSX, n_div_16_all_m) {
   TEST_REQUIRES_VSX;
   for (size_t n = 16; n < 256; n += 24) {
-    GAvgPoolMicrokernelTester().m(7).n(n).test(pytorch_q8gavgpool_ukernel_up16x7__vsx);
+    GAvgPoolMicrokernelTester().m(7).n(n).test(
+        pytorch_q8gavgpool_ukernel_up16x7__vsx);
   }
 }
 
@@ -1257,7 +1260,8 @@ TEST(Q8GAVGPOOL_UP16x7__VSX, n_div_16_few_m) {
 TEST(Q8GAVGPOOL_UP16x7__VSX, n_gt_16_all_m) {
   TEST_REQUIRES_VSX;
   for (size_t n = 17; n < 32; n++) {
-    GAvgPoolMicrokernelTester().m(7).n(n).test(pytorch_q8gavgpool_ukernel_up16x7__vsx);
+    GAvgPoolMicrokernelTester().m(7).n(n).test(
+        pytorch_q8gavgpool_ukernel_up16x7__vsx);
   }
 }
 
